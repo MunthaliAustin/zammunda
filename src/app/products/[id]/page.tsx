@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Minus, Plus } from 'lucide-react';
+import { useCart } from '@/app/providers';// Adjust path as needed
 
 const ProductDetailsPage = ({ params }) => {
   const router = useRouter();
@@ -12,6 +13,10 @@ const ProductDetailsPage = ({ params }) => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
+
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (!id) return;
@@ -39,6 +44,23 @@ const ProductDetailsPage = ({ params }) => {
 
     fetchProduct();
   }, [id]);
+
+  const handleAddToCart = async () => {
+    if (!product || !product.isActive) return;
+
+    setAddingToCart(true);
+    try {
+      await addToCart(product.id, quantity);
+      // Reset quantity and show success (you can replace alert with a toast notification)
+      setQuantity(1);
+      alert('Product added to cart successfully!');
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      alert('Failed to add product to cart. Please try again.');
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -98,15 +120,71 @@ const ProductDetailsPage = ({ params }) => {
               <p className="text-lg leading-relaxed mb-4">{safeRender(product.description)}</p>
               <h3 className="text-2xl font-bold mt-8 mb-4">Product Information</h3>
               <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li><strong>Category:</strong> {safeRender(product.category.name)}</li>
-                <li><strong>Location:</strong> {safeRender(product.seller.city)}</li>
+                <li><strong>Category:</strong> {safeRender(product.category?.name)}</li>
+                <li><strong>Location:</strong> {safeRender(product.seller?.city)}</li>
                 <li><strong>Weight/Quantity:</strong> {safeRender(product.stock)}</li>
                 <li><strong>Availability:</strong> {product.isActive ? 'In Stock' : 'Out of Stock'}</li>
               </ul>
             </div>
-            <button className="mt-8 w-full bg-green-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-green-700 transform transition-all duration-300 hover:scale-105 shadow-lg">
-              Add to Cart
-            </button>
+            {product.isActive ? (
+              <div className="mt-8 space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center border border-gray-300 rounded-full overflow-hidden">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={addingToCart}
+                      className="p-2 hover:bg-gray-100 disabled:opacity-50"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <input
+                      type="number"
+                      min="1"
+                      max={product.stock}
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock, parseInt(e.target.value) || 1)))}
+                      className="w-16 text-center border-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <button
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      disabled={addingToCart}
+                      className="p-2 hover:bg-gray-100 disabled:opacity-50"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <span className="text-sm text-gray-600">Available: {product.stock}</span>
+                </div>
+                <button 
+                  onClick={handleAddToCart}
+                  disabled={addingToCart || quantity > product.stock}
+                  className="w-full bg-green-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-green-700 transform transition-all duration-300 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {addingToCart ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 8M7 13l1.5 8m0 0h10m0 0l-1.5-8m1.5 8L21 13" />
+                      </svg>
+                      <span>Add to Cart</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="mt-8">
+                <button 
+                  disabled
+                  className="w-full bg-gray-400 text-white px-8 py-4 rounded-full font-semibold text-lg cursor-not-allowed"
+                >
+                  Out of Stock
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
