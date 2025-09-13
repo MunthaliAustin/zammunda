@@ -33,7 +33,7 @@ export default function SellerSignIn() {
 
       if (response.ok) {
         // Login successful, redirect to seller dashboard
-        router.push('/');
+        router.push('/dashboard');
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Login failed. Please check your credentials.');

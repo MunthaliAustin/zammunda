@@ -320,7 +320,7 @@ const FarmCategoriesSection = () => {
                         <img
                           src={
                             product.imageUrl ||
-                            "https://res.cloudinary.com/dh1fa2ipv/image/upload/v1757700970/farm-products/goaxrzgpokrtkfltzoef.png"
+                            "https://via.placeholder.com/600x600.png?text=Product+Image"
                           }
                           alt={product.name}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"

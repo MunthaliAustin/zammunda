@@ -86,7 +86,7 @@ const CartPage = () => {
                   <div className="flex-1">
                     <h2 className="text-xl font-semibold">{item.product.name}</h2>
                     <p className="text-green-600 font-medium">MWK {item.price} each</p>
-                    <p className="text-gray-600">Subtotal: MWK {(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="text-gray-600">Subtotal: MWK {(item.price * item.quantity)}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
@@ -113,7 +113,7 @@ const CartPage = () => {
               ))}
             </div>
             <div className="mt-8 text-right">
-              <p className="text-2xl font-bold">Total: MWK {cart.totalAmount.toFixed(2)}</p>
+              <p className="text-2xl font-bold">Total: MWK {cart.totalAmount}</p>
             </div>
 
             <div className="mt-12">

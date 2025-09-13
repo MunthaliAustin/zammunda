@@ -242,8 +242,8 @@ export default function Header() {
       {/* Main Header */}
       <div className="w-full border-b bg-white shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-          {/* Logo Section */}
-          <div className="flex items-center space-x-6">
+          {/* Logo Section - Fixed width to prevent compression */}
+          <div className="flex items-center space-x-6 flex-shrink-0 min-w-[280px]">
             <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
               <img
                 src="/logo.png"
@@ -257,8 +257,8 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex flex-1 max-w-3xl mx-6">
+          {/* Search Bar - Improved spacing and flex handling */}
+          <div className="flex flex-1 max-w-2xl mx-8">
             <div className="flex w-full border-2 border-gray-300 rounded-full overflow-hidden focus-within:border-blue-500 transition-colors">
               <input
                 type="text"
@@ -276,18 +276,18 @@ export default function Header() {
                 <option>Books</option>
               </select>
             </div>
-            <button className="ml-3 px-8 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
+            <button className="ml-3 px-6 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg flex-shrink-0">
               Search
             </button>
           </div>
 
-          {/* Right Section: Advanced Settings, Orders, Cart, Sign In */}
-          <div className="flex items-center space-x-4">
-            {/* Advanced Settings Button */}
+          {/* Right Section: Smaller buttons with proper spacing */}
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            {/* Advanced Settings Button - Reduced size */}
             <HoverDropdownMenu>
-              <HoverDropdownTrigger className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer border border-gray-300 hover:border-gray-400">
-                <Settings className="w-4 h-4 text-gray-600" />
-                <span className="text-gray-700 font-medium text-sm">
+              <HoverDropdownTrigger className="flex items-center space-x-1.5 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer border border-gray-300 hover:border-gray-400">
+                <Settings className="w-3.5 h-3.5 text-gray-600" />
+                <span className="text-gray-700 font-medium text-xs">
                   Advanced
                 </span>
                 <ChevronDown className="w-3 h-3 text-gray-500" />
@@ -315,43 +315,43 @@ export default function Header() {
               </HoverDropdownContent>
             </HoverDropdownMenu>
 
-            {/* Orders Button */}
+            {/* Orders Button - Reduced size */}
             <button
               onClick={() => router.push('/my-orders')}
-              className="flex items-center space-x-2 px-4 py-2 rounded-full bg-orange-50 hover:bg-orange-100 transition-colors border border-orange-200 hover:border-orange-300"
+              className="flex items-center space-x-1.5 px-3 py-2 rounded-full bg-orange-50 hover:bg-orange-100 transition-colors border border-orange-200 hover:border-orange-300"
             >
-              <Package className="w-5 h-5 text-orange-600" />
-              <span className="text-orange-700 font-medium text-sm">
+              <Package className="w-4 h-4 text-orange-600" />
+              <span className="text-orange-700 font-medium text-xs">
                 Orders
               </span>
             </button>
 
-            {/* Shopping Cart */}
+            {/* Shopping Cart - Reduced size */}
             <div className="relative">
               <button 
                 onClick={() => router.push('/cart')}
-                className="flex items-center space-x-2 px-4 py-2 rounded-full bg-orange-50 hover:bg-orange-100 transition-colors border border-orange-200 hover:border-orange-300"
+                className="flex items-center space-x-1.5 px-3 py-2 rounded-full bg-orange-50 hover:bg-orange-100 transition-colors border border-orange-200 hover:border-orange-300"
               >
-                <ShoppingCart className="w-5 h-5 text-orange-600" />
-                <span className="text-orange-700 font-medium text-sm">
+                <ShoppingCart className="w-4 h-4 text-orange-600" />
+                <span className="text-orange-700 font-medium text-xs">
                   Cart
                 </span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                     {cartCount}
                   </span>
                 )}
               </button>
             </div>
 
-            {/* Sign In / User Menu */}
+            {/* Sign In / User Menu - Reduced size */}
             <div className="relative">
               {!user ? (
                 <HoverDropdownMenu>
-                  <HoverDropdownTrigger className="flex items-center space-x-2 px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer border border-blue-200 hover:border-blue-300">
-                    <User className="w-5 h-5 text-blue-600" />
-                    <span className="text-blue-700 font-medium">Sign In</span>
-                    <ChevronDown className="w-4 h-4 text-blue-500" />
+                  <HoverDropdownTrigger className="flex items-center space-x-1.5 px-3 py-2 rounded-full bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer border border-blue-200 hover:border-blue-300">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span className="text-blue-700 font-medium text-xs">Sign In</span>
+                    <ChevronDown className="w-3 h-3 text-blue-500" />
                   </HoverDropdownTrigger>
                   <HoverDropdownContent
                     align="end"
@@ -371,17 +371,17 @@ export default function Header() {
                 </HoverDropdownMenu>
               ) : (
                 <HoverDropdownMenu>
-                  <HoverDropdownTrigger className="flex items-center space-x-2 px-3 py-2 rounded-full bg-green-50 hover:bg-green-100 transition-colors cursor-pointer border border-green-200 hover:border-green-300">
+                  <HoverDropdownTrigger className="flex items-center space-x-1.5 px-2.5 py-2 rounded-full bg-green-50 hover:bg-green-100 transition-colors cursor-pointer border border-green-200 hover:border-green-300">
                     <UserAvatar user={user} />
                     <div className="flex flex-col items-start">
-                      <span className="text-green-700 font-semibold text-sm leading-tight">
+                      <span className="text-green-700 font-semibold text-xs leading-tight">
                         {user.first_name}
                       </span>
                       <span className="text-green-600 text-xs leading-tight">
                         {user.role}
                       </span>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-green-500" />
+                    <ChevronDown className="w-3 h-3 text-green-500" />
                   </HoverDropdownTrigger>
                   <HoverDropdownContent
                     align="end"
