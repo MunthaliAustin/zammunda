@@ -13,7 +13,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   const pathname = usePathname();
 
   // Define routes that should NOT have Header/Footer
-  const noHeaderFooterRoutes = ["/signin/seller", "/signin/buyer"];
+  const noHeaderFooterRoutes = ["/login/seller", "/login/buyer"];
 
   // Check if current route is in noHeaderFooterRoutes
   const isMinimalLayout = noHeaderFooterRoutes.includes(pathname);

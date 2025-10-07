@@ -418,7 +418,7 @@ export default function Header() {
                         href={
                           user.role === "BUYER"
                             ? "/buyer/profile"
-                            : "/seller/dashboard"
+                            : "/dashboard"
                         }
                         className="block w-full"
                       >
