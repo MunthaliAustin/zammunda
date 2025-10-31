@@ -287,10 +287,10 @@ const FarmCategoriesSection = () => {
         </button>
       </div>
 
-      {/* Products Modal */}
+      {/* Products Modal with Blurred Background */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl pointer-events-auto">
             {/* Modal Close Button */}
             <button
               onClick={() => setIsModalOpen(false)}

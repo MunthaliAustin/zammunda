@@ -268,12 +268,12 @@ export default function Header() {
                 className="flex-1 px-6 py-3 focus:outline-none text-gray-700"
               />
               <select className="border-l-2 border-gray-300 px-4 py-3 text-gray-600 focus:outline-none bg-gray-50">
-                <option>Baby</option>
-                <option>Electronics</option>
-                <option>Fashion</option>
-                <option>Home</option>
-                <option>Sports</option>
-                <option>Books</option>
+                <option>Fruits</option>
+                <option>Processed foods</option>
+                <option>Vegitables</option>
+                <option>Spices</option>
+                <option>Flour</option>
+                <option>Fertilizer</option>
               </select>
             </div>
             <button className="ml-3 px-6 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg flex-shrink-0">

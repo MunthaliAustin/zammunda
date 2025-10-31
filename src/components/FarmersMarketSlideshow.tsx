@@ -33,7 +33,7 @@ const FarmersMarketSlideshow = () => {
     },
     {
       id: 2,
-      background: "bg-gradient-to-br from-amber-400 via-orange-500 to-yellow-500",
+      background: "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600",
       title: "Support Local Farmers",
       subtitle: "Every purchase helps sustain local agriculture and brings fresh, seasonal produce to your community.",
       buttonText: "Meet Our Farmers",
@@ -83,7 +83,7 @@ const FarmersMarketSlideshow = () => {
     },
     {
       id: 4,
-      background: "bg-gradient-to-br from-red-400 via-pink-500 to-rose-500",
+      background: "bg-gradient-to-br from-purple-400 via-violet-500 to-indigo-500",
       title: "Seasonal Harvest",
       subtitle: "Enjoy the best flavors of each season with our rotating selection of peak-freshness produce.",
       buttonText: "Explore Seasonal",
