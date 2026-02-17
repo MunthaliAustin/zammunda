@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, CheckCircle, AlertCircle, X } from "lucide-react";
+import { CheckCircle, AlertCircle, X } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
+import FloatingLabelInput from "@/components/FloatingLabelInput";
+import GoogleOAuthButton from "@/components/GoogleOAuthButton";
 
 export default function Signup() {
   const [activeTab, setActiveTab] = useState("personal");
@@ -299,8 +301,8 @@ export default function Signup() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Side - Image with smooth transition */}
-          <div className="order-2 lg:order-1">
+          {/* Left Side - Image with smooth transition (Hidden on mobile) */}
+          <div className="order-2 lg:order-1 hidden lg:block">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-square lg:aspect-auto lg:h-[600px] bg-gray-200">
               <div
                 className="w-full h-full transition-all duration-700 ease-out bg-cover bg-center"
@@ -327,19 +329,19 @@ export default function Signup() {
             <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-10">
               {/* Form Header */}
               <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   Create Account
                 </h1>
-                <p className="text-gray-600">Join our marketplace today</p>
+                <p className="text-gray-600 text-sm">Join our marketplace today</p>
               </div>
 
               {/* Tab Selector */}
-              <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-8">
+              <div className="flex space-x-1 bg-gray-100 rounded-full p-1 mb-8">
                 {["personal", "business"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => handleTabChange(tab)}
-                    className={`flex-1 py-3 px-4 rounded-md font-semibold transition-all duration-300 ${
+                    className={`flex-1 py-2 px-4 rounded-full font-semibold transition-all duration-300 text-sm ${
                       activeTab === tab
                         ? "bg-blue-600 text-white shadow-md"
                         : "text-gray-700 hover:text-gray-900 bg-transparent"
@@ -352,10 +354,22 @@ export default function Signup() {
                 ))}
               </div>
 
+              {/* Google OAuth Button */}
+              <div className="mb-6">
+                <GoogleOAuthButton isLoading={isLoading} />
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="flex-1 h-px bg-gray-300" />
+                <span className="text-xs text-gray-500 font-medium">OR</span>
+                <div className="flex-1 h-px bg-gray-300" />
+              </div>
+
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Dynamic Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {fields.map((field) => (
                     <div
                       key={field.name}
@@ -366,62 +380,63 @@ export default function Signup() {
                           : ""
                       }
                     >
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        {field.label}
-                        {field.required && (
-                          <span className="text-red-500">*</span>
-                        )}
-                      </label>
                       {field.type === "password" ? (
-                        <div className="relative">
-                          <input
-                            type={showPassword ? "text" : "password"}
-                            name={field.name}
-                            value={formData[field.name]}
-                            onChange={handleChange}
-                            placeholder={field.label}
-                            required={field.required}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-500"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          >
-                            {showPassword ? (
-                              <EyeOff size={20} />
-                            ) : (
-                              <Eye size={20} />
-                            )}
-                          </button>
-                        </div>
-                      ) : field.type === "select" ? (
-                        <select
+                        <FloatingLabelInput
+                          label={field.label}
+                          type="password"
                           name={field.name}
                           value={formData[field.name]}
                           onChange={handleChange}
+                          placeholder={field.label}
                           required={field.required}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-500"
-                        >
-                          <option value="" disabled>
-                            Select {field.label}
-                          </option>
-                          {field.options &&
-                            field.options.map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                        </select>
+                          showPasswordToggle={true}
+                          showPassword={showPassword}
+                          onTogglePassword={() => setShowPassword(!showPassword)}
+                        />
+                      ) : field.type === "select" ? (
+                        <div className="relative w-full">
+                          <select
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={handleChange}
+                            required={field.required}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 bg-white appearance-none"
+                          >
+                            <option value="" disabled>
+                              Select {field.label}
+                            </option>
+                            {field.options &&
+                              field.options.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <svg
+                              className="w-4 h-4 text-gray-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                              />
+                            </svg>
+                          </div>
+                        </div>
                       ) : (
-                        <input
+                        <FloatingLabelInput
+                          label={field.label}
                           type={field.type}
                           name={field.name}
                           value={formData[field.name]}
                           onChange={handleChange}
                           placeholder={field.placeholder || field.label}
                           required={field.required}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-500"
                         />
                       )}
                     </div>
@@ -458,7 +473,7 @@ export default function Signup() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full py-3 px-4 rounded-lg font-bold text-white transition-all duration-300 ${
+                  className={`w-full py-3 px-4 rounded-full font-bold text-white transition-all duration-300 ${
                     isLoading
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-blue-600 hover:bg-blue-700 active:scale-95 shadow-md hover:shadow-lg"
@@ -505,7 +520,7 @@ export default function Signup() {
             </div>
 
             {/* Trust Badges */}
-            <div className="mt-8 flex items-center justify-center space-x-6 text-gray-600 text-sm">
+            {/* <div className="mt-8 flex items-center justify-center space-x-6 text-gray-600 text-xs md:text-sm">
               <div className="flex items-center space-x-2">
                 <svg
                   className="w-5 h-5 text-green-600"
@@ -534,7 +549,7 @@ export default function Signup() {
                 </svg>
                 <span>Privacy Protected</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </main>

@@ -251,7 +251,7 @@ export default function BuyerSignIn() {
             </form>
 
             {/* Trust Badges */}
-            <div className="mt-6 flex items-center justify-center space-x-4 text-gray-600 text-xs">
+            {/* <div className="mt-6 flex items-center justify-center space-x-4 text-gray-600 text-xs">
               <div className="flex items-center space-x-1">
                 <svg
                   className="w-4 h-4 text-green-600"
@@ -280,7 +280,7 @@ export default function BuyerSignIn() {
                 </svg>
                 <span>Data Protected</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Divider - New to Zakumunda */}
