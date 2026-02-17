@@ -301,7 +301,7 @@ export default function BuyerSignIn() {
           </a>
 
           {/* Seller Portal Link */}
-          <p className="text-center text-sm text-gray-600 mt-4">
+          {/* <p className="text-center text-sm text-gray-600 mt-4">
             Are you a seller?{" "}
             <a
               href="/seller/signin"
@@ -309,7 +309,7 @@ export default function BuyerSignIn() {
             >
               Sign in here
             </a>
-          </p>
+          </p> */}
         </div>
       </main>
     </div>
