@@ -114,10 +114,27 @@ export default function Signup() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      const err = error as any;
-      setError(
-        err.response?.data?.message || "Network error. Please try again."
-      );
+      let errorMessage = "Network error. Please try again.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (
+        error &&
+        typeof error === "object" &&
+        "response" in error
+      ) {
+        const response = (error as Record<string, unknown>).response;
+        if (
+          response &&
+          typeof response === "object" &&
+          "data" in response
+        ) {
+          const data = (response as Record<string, unknown>).data;
+          if (data && typeof data === "object" && "message" in data) {
+            errorMessage = (data as Record<string, unknown>).message as string;
+          }
+        }
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

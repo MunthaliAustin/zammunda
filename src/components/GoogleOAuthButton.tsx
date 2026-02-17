@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
-
 interface GoogleOAuthButtonProps {
   onSuccess?: (credential: string) => void;
-  onError?: () => void;
   isLoading?: boolean;
+}
+
+interface GoogleWindow extends Window {
+  google?: {
+    accounts?: {
+      id: {
+        initialize: (config: Record<string, unknown>) => void;
+        renderButton: (element: HTMLElement | null, options: Record<string, unknown>) => void;
+      };
+    };
+  };
 }
 
 export default function GoogleOAuthButton({
   onSuccess,
-  onError,
   isLoading = false,
 }: GoogleOAuthButtonProps) {
   const handleGoogleSignUp = () => {
@@ -18,17 +25,18 @@ export default function GoogleOAuthButton({
     // You'll need to configure this with your Google OAuth credentials
     // This is a placeholder for the actual implementation
     
-    if (typeof window !== "undefined" && (window as any).google?.accounts?.id) {
-      (window as any).google.accounts.id.initialize({
+    const googleWindow = window as GoogleWindow;
+    if (typeof window !== "undefined" && googleWindow.google?.accounts?.id) {
+      googleWindow.google.accounts.id.initialize({
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
-        callback: (response: any) => {
+        callback: (response: { credential: string }) => {
           if (onSuccess) {
             onSuccess(response.credential);
           }
         },
       });
 
-      (window as any).google.accounts.id.renderButton(
+      googleWindow.google.accounts.id.renderButton(
         document.getElementById("google-button"),
         {
           type: "standard",
