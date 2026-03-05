@@ -21,7 +21,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <>
       {!isMinimalLayout && <Header />}
-      <main className={`flex-grow ${isMinimalLayout ? "" : "pt-32 pb-20"}`}>
+      <main className={`flex-grow ${isMinimalLayout ? "" : "pt-20 pb-20"}`}>
         {children}
       </main>
       {!isMinimalLayout && <Footer />}

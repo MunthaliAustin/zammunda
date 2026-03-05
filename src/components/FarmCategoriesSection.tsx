@@ -125,17 +125,28 @@ const FarmCategoriesSection = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        // Check if user is authenticated
+        const token = localStorage.getItem('auth-token');
+        
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/categories`
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/category`,
+          { headers }
         );
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
         } else {
-          console.error("Failed to fetch categories");
+          console.error("Failed to fetch categories:", response.status);
+          setCategories([]);
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
+        setCategories([]);
       } finally {
         setLoading(false);
       }
