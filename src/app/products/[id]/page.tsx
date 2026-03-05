@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/app/providers';
+import React, { useState, useEffect } from 'react';
+import { useAuth, useCart } from '@/app/providers';
 import { productService, Product } from '@/lib/product-service';
 import { inventoryService, InventoryItem } from '@/lib/inventory-service';
 import { orderService, OrderRequest } from '@/lib/order-service';
@@ -28,9 +28,10 @@ interface ProductWithInventory extends Product {
   inventory?: InventoryItem;
 }
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const { addToCart, fetchCart } = useCart();
   const [product, setProduct] = useState<ProductWithInventory | null>(null);
   const [inventory, setInventory] = useState<InventoryItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,16 +41,19 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
+  // Unwrap params Promise
+  const unwrappedParams = React.use(params);
+
   useEffect(() => {
     if (!isLoading && user) {
       fetchProduct();
     }
-  }, [params.id, user, isLoading]);
+  }, [unwrappedParams.id, user, isLoading]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const productData = await productService.getProductById(params.id);
+      const productData = await productService.getProductById(unwrappedParams.id);
       
       try {
         const inventoryData = await inventoryService.getInventoryBySkuCode(productData.skuCode);
@@ -70,7 +74,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   const handleAddToCart = async () => {
     if (!user) {
-      setError('You must be logged in to place an order');
+      setError('You must be logged in to add items to cart');
       return;
     }
 
@@ -85,20 +89,36 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     }
 
     try {
-      const orderRequest: OrderRequest = {
-        productId: product.id!,
-        quantity: Number(quantity),
-        userId: user.user_id.toString(),
-        skuCode: product.skuCode,
-        price: product.price,
-        sellerId: inventory?.sellerId || ''
-      };
+      // Add to cart using the cart context with product details
+      if (!product.id) {
+        setError('Product ID not found');
+        return;
+      }
       
-      await orderService.createOrder(orderRequest);
-      setSuccess('Order placed successfully!');
+      console.log('Adding to cart - Product:', product);
+      console.log('Seller ID:', product.sellerId);
+      
+      await addToCart(product.id, Number(quantity), {
+        name: product.name,
+        price: product.price,
+        imageUrl: product.imageUrls?.[0] || product.imageUrl || undefined,
+        sellerId: product.sellerId,
+        skuCode: product.skuCode
+      });
+      
+      // Show success message
+      setSuccess(`Added ${quantity} x ${product.name} to cart!`);
       setError(null);
+      
+      // Refresh cart count in header
+      await fetchCart();
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to place order');
+      setError(err instanceof Error ? err.message : 'Failed to add to cart');
       setSuccess(null);
     }
   };

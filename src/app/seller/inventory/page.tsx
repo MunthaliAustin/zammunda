@@ -1,17 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/providers';
 import { inventoryService, InventoryItem } from '@/lib/inventory-service';
+import { 
+  ArrowLeft, 
+  Package, 
+  Edit2, 
+  Trash2, 
+  Inbox,
+  Search,
+  TrendingUp,
+  ShieldCheck
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function SellerInventoryPage() {
+  const router = useRouter();
   const { user, isLoading } = useAuth();
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQuantity, setEditQuantity] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -55,139 +68,227 @@ export default function SellerInventoryPage() {
     }
   };
 
-  if (isLoading || loading) {
+  // Filter inventory by search query
+  const filteredInventory = inventory.filter(item =>
+    item.skuCode.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading...</span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-green-50">
+        <div className="text-center">
+          <div className="relative inline-block">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-200"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-600 absolute top-0 left-0"></div>
+          </div>
+          <p className="mt-4 text-lg text-gray-600 font-medium">Loading your inventory...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-green-50 p-8">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Package className="w-12 h-12 text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Please sign in</h2>
+          <p className="text-gray-600 mb-6">Sign in to manage your inventory.</p>
+          <button
+            onClick={() => router.push("/")}
+            className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-3 rounded-full font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Go Home</span>
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Inventory</h1>
-            <p className="text-gray-600 mt-2">Manage your product inventory</p>
-          </div>
-          <Link 
-            href="/seller/add-product"
-            className="px-4 py-2 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition"
-          >
-            Add Product
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="mb-6 inline-flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors font-medium bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-          <p className="text-red-700">{error}</p>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">Loading inventory...</span>
-        </div>
-      ) : inventory.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <svg className="mx-auto h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Package className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">My Inventory</h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  {filteredInventory.length} of {inventory.length} item{inventory.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No inventory yet</h3>
-          <p className="text-gray-500 mb-4">You haven't added any products to your inventory yet.</p>
-          <Link 
-            href="/seller/add-product"
-            className="inline-block px-6 py-3 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition"
-          >
-            Add Your First Product
-          </Link>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by SKU code..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
         </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU Code</th>
-                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Quantity</th>
-                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
-                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reserved</th>
-                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {inventory.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-6 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{item.skuCode}</div>
-                  </td>
-                  <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{item.skuCode}</td>
-                  <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{item.quantity}</td>
-                  <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {item.quantity}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                      0
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 whitespace-nowrap text-sm font-medium">
-                    {editingId === item.skuCode ? (
-                      <div className="flex items-center">
-                        <input
-                          type="number"
-                          min="0"
-                          value={editQuantity}
-                          onChange={(e) => setEditQuantity(Number(e.target.value))}
-                          className="border rounded px-2 py-1 mr-2 w-20"
-                        />
-                        <button
-                          onClick={() => handleUpdateQuantity(item.skuCode)}
-                          className="text-green-600 hover:text-green-900 mr-2"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingId(null)}
-                          className="text-gray-600 hover:text-gray-900"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => {
-                            setEditingId(item.skuCode);
-                            setEditQuantity(item.quantity);
-                          }}
-                          className="text-blue-600 hover:text-blue-900 mr-3"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleRemoveItem(item.skuCode)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Remove
-                        </button>
-                      </>
-                    )}
-                  </td>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-8 flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              <ShieldCheck className="h-6 w-6 text-red-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-red-800">Error</h3>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {filteredInventory.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-md p-12 text-center">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Inbox className="w-12 h-12 text-gray-400" />
+            </div>
+            {inventory.length === 0 ? (
+              <>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">No inventory yet</h3>
+                <p className="text-gray-600 mb-6">When you add products, they'll appear here.</p>
+                <button
+                  onClick={() => router.push("/dashboard")}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  <span>Back to Dashboard</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">No matching inventory</h3>
+                <p className="text-gray-600 mb-6">Try adjusting your search query</p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Clear search
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          /* Inventory Table */
+          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <tr>
+                  <th className="p-4 text-left font-semibold">SKU Code</th>
+                  <th className="p-4 text-left font-semibold">Total Quantity</th>
+                  <th className="p-4 text-left font-semibold">Available</th>
+                  <th className="p-4 text-left font-semibold">Reserved</th>
+                  <th className="p-4 text-right font-semibold">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {filteredInventory.map((item, index) => (
+                  <tr 
+                    key={item.id} 
+                    className={`border-b last:border-b-0 hover:bg-gray-50 transition-colors ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    }`}
+                  >
+                    <td className="p-4">
+                      <div className="font-semibold text-gray-900">{item.skuCode}</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center space-x-1">
+                        <TrendingUp className="w-4 h-4 text-green-600" />
+                        <span className="font-bold text-gray-900">{item.quantity} units</span>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="inline-flex px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-800 border border-green-300">
+                        {item.quantity} available
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className="inline-flex px-3 py-1 rounded-full text-sm font-bold bg-yellow-100 text-yellow-800 border border-yellow-300">
+                        0 reserved
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center justify-end space-x-2">
+                        {editingId === item.skuCode ? (
+                          <>
+                            <input
+                              type="number"
+                              min="0"
+                              value={editQuantity}
+                              onChange={(e) => setEditQuantity(Number(e.target.value))}
+                              className="border border-gray-300 rounded-lg px-3 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
+                            <button
+                              onClick={() => handleUpdateQuantity(item.skuCode)}
+                              className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                              title="Save"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="p-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors"
+                              title="Cancel"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditingId(item.skuCode);
+                                setEditQuantity(item.quantity);
+                              }}
+                              className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                              title="Edit Quantity"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleRemoveItem(item.skuCode)}
+                              className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                              title="Remove"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

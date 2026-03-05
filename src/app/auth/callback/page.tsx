@@ -36,7 +36,7 @@ export default function AuthCallback() {
           body: new URLSearchParams({
             grant_type: 'authorization_code',
             client_id: 'zammunda-web',
-            client_secret: process.env.KEYCLOAK_CLIENT_SECRET || '',
+            client_secret: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_SECRET || '',
             code: code,
             redirect_uri: redirectUri,
           }),

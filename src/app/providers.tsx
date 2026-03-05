@@ -214,17 +214,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export const useAuth = () => useContext(AuthContext);
 
 interface CartItem {
-  id: number;
+  id: string | number; // This is productId from backend (can be UUID or numeric)
+  skuCode?: string; // Add SKU code for order placement
   product: {
-    id: number;
+    id: string | number;
     name: string;
     price: number;
     image?: string;
-    // Add other fields
   };
   quantity: number;
   price: number;
-  // Add other fields from backend
+  name?: string;
+  imageUrl?: string;
+  sellerId?: string; // Add seller info for order placement
 }
 
 interface Cart {
@@ -236,9 +238,9 @@ interface CartContextType {
   cart: Cart;
   cartCount: number;
   fetchCart: () => Promise<void>;
-  addToCart: (productId: number, quantity: number) => Promise<void>;
-  updateCartItem: (cartItemId: number, quantity: number) => Promise<void>;
-  removeCartItem: (cartItemId: number) => Promise<void>;
+  addToCart: (productId: string | number, quantity: number, productDetails?: { name: string; price: number; imageUrl?: string; sellerId?: string; skuCode?: string }) => Promise<void>;
+  updateCartItem: (productId: string | number, quantity: number) => Promise<void>;
+  removeCartItem: (productId: string | number) => Promise<void>;
   clearCart: () => Promise<void>;
 }
 
@@ -263,13 +265,51 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart`, {
+      console.log('Fetching cart for user:', user.user_id);
+      const token = localStorage.getItem('auth-token');
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
         credentials: "include",
       });
+      console.log('Cart response status:', res.status);
+      
       if (res.ok) {
-        const { data } = await res.json();
-        setCart(data);
+        const responseJson = await res.json();
+        console.log('Cart response data:', responseJson);
+        console.log('Cart items from backend:', responseJson.items);
+        // Backend returns: { items, totalAmount, itemCount }
+        // Map items to frontend format
+        const mappedItems = (responseJson.items || []).map((item: any) => {
+          console.log('Mapping cart item:', item);
+          return {
+            id: item.productId,
+            skuCode: item.skuCode,
+            product: {
+              id: item.productId,
+              name: item.name,
+              price: item.price,
+              image: item.imageUrl,
+            },
+            quantity: item.quantity,
+            price: item.price,
+            name: item.name,
+            imageUrl: item.imageUrl,
+            sellerId: item.sellerId || undefined, // Include seller info if available
+          };
+        });
+        setCart({ 
+          items: mappedItems, 
+          totalAmount: responseJson.totalAmount || 0 
+        });
+        console.log('Mapped cart items:', mappedItems);
+        console.log('First item sellerId:', mappedItems[0]?.sellerId);
       } else {
+        console.warn('Cart fetch failed, status:', res.status);
         setCart({ items: [], totalAmount: 0 });
       }
     } catch (err) {
@@ -278,31 +318,66 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addToCart = async (productId: number, quantity: number) => {
+  const addToCart = async (productId: string | number, quantity: number, productDetails?: { name: string; price: number; imageUrl?: string; sellerId?: string; skuCode?: string }) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart`, {
+      // Validate productId
+      if (!productId) {
+        console.error('Invalid productId:', productId);
+        throw new Error('Product ID is required');
+      }
+      
+      console.log('Adding to cart - Product ID:', productId, 'Quantity:', quantity, 'Product Details:', productDetails);
+      const token = localStorage.getItem('auth-token');
+      
+      const requestBody = {
+        productId,
+        quantity,
+        name: productDetails?.name,
+        price: productDetails?.price,
+        imageUrl: productDetails?.imageUrl,
+        sellerId: productDetails?.sellerId,
+        skuCode: productDetails?.skuCode
+      };
+      
+      console.log('Cart request body:', requestBody);
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart`, {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity }),
+        body: JSON.stringify(requestBody),
       });
+      console.log('Add to cart response status:', res.status);
+      
       if (res.ok) {
         await fetchCart();
+        console.log('Cart refreshed after adding item');
       } else {
-        throw new Error("Failed to add to cart");
+        const errorData = await res.json();
+        console.error('Add to cart failed:', errorData);
+        throw new Error("Failed to add to cart: " + JSON.stringify(errorData));
       }
     } catch (err) {
       console.error("Error adding to cart:", err);
+      throw err;
     }
   };
 
-  const updateCartItem = async (cartItemId: number, quantity: number) => {
+  const updateCartItem = async (productId: string | number, quantity: number) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${cartItemId}`, {
-        method: "PATCH",
+      console.log('Updating cart item - Product ID:', productId, 'Quantity:', quantity);
+      const token = localStorage.getItem('auth-token');
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/${productId}?quantity=${quantity}`, {
+        method: "PUT",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity }),
       });
       if (res.ok) {
         await fetchCart();
@@ -314,10 +389,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const removeCartItem = async (cartItemId: number) => {
+  const removeCartItem = async (productId: string | number) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${cartItemId}`, {
+      console.log('Removing cart item - Product ID:', productId);
+      const token = localStorage.getItem('auth-token');
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/${productId}`, {
         method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
         credentials: "include",
       });
       if (res.ok) {
@@ -332,8 +414,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart`, {
+      console.log('Clearing cart');
+      const token = localStorage.getItem('auth-token');
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart`, {
         method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
         credentials: "include",
       });
       if (res.ok) {

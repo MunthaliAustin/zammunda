@@ -39,11 +39,12 @@ export const inventoryService = {
     }
   },
 
-  // Get inventory by SKU code
+  // Get inventory by SKU code (public - for product details page)
   getInventoryBySkuCode: async (skuCode: string): Promise<InventoryItem> => {
     const token = await getAuthToken();
     
-    const response = await fetch(`${API_BASE_URL}/api/inventory/${skuCode}`, {
+    // Use public endpoint that doesn't filter by seller
+    const response = await fetch(`${API_BASE_URL}/api/inventory/public/${skuCode}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },

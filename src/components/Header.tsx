@@ -122,12 +122,20 @@ export default function Header() {
                     Orders
                   </Link>
                   {user.role === "SELLER" && (
-                    <Link 
-                      href="/seller/inventory" 
-                      className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors"
-                    >
-                      Inventory
-                    </Link>
+                    <>
+                      <Link 
+                        href="/seller/inventory" 
+                        className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors"
+                      >
+                        Inventory
+                      </Link>
+                      <Link 
+                        href="/seller/products" 
+                        className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors"
+                      >
+                        My Products
+                      </Link>
+                    </>
                   )}
                 </>
               )}

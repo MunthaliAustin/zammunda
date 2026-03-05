@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Package, Trash2, Edit, Check, X, TrendingUp, DollarSign, ShoppingCart, Users, AlertCircle, ArrowUpRight, ArrowDownRight, Clock, ChevronRight, Eye, PlusCircle, Warehouse, PackageCheck, AlertTriangle } from "lucide-react";
+import { Package, Trash2, Edit, TrendingUp, DollarSign, ShoppingCart, Users, AlertCircle, ArrowUpRight, ArrowDownRight, Clock, ChevronRight, Eye, PlusCircle, Warehouse, PackageCheck, AlertTriangle } from "lucide-react";
 import { useAuth } from "../providers";
 import Link from "next/link";
 import { getAuthToken } from "@/lib/auth-service";
@@ -21,7 +21,6 @@ const SellerDashboard = () => {
     activeListings: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState({});
 
   useEffect(() => {
     if (user && user.role === "SELLER") {
@@ -59,7 +58,8 @@ const SellerDashboard = () => {
       const ordersData = await ordersRes.json();
       console.log("Orders data received:", ordersData);
       // The order service returns an array directly, not wrapped in { data: ... }
-      setOrders(Array.isArray(ordersData) ? ordersData : []);
+      const ordersArray = Array.isArray(ordersData) ? ordersData : [];
+      setOrders(ordersArray);
 
       // Fetch products
       const productsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/product/my-products`, {
@@ -75,7 +75,8 @@ const SellerDashboard = () => {
       }
       const productsData = await productsRes.json();
       console.log("Products data received:", productsData);
-      setProducts(Array.isArray(productsData) ? productsData : []);
+      const productsArray = Array.isArray(productsData) ? productsData : [];
+      setProducts(productsArray);
 
       // Fetch inventory for seller's products
       try {
@@ -86,21 +87,21 @@ const SellerDashboard = () => {
         // Continue without inventory data
       }
 
-      // Calculate metrics based on seller's items only
-      const totalOrders = orders.length;
-      const totalRevenue = orders
+      // Calculate metrics based on fetched data
+      const totalOrders = ordersArray.length;
+      const totalRevenue = ordersArray
         .filter((order) => order.status === "DELIVERED")
         .reduce((sum, order) => {
           const sellerSubtotal = order.price * order.quantity || 0;
           return sum + sellerSubtotal;
         }, 0);
-      const productsSold = orders
+      const productsSold = ordersArray
         .filter((order) => order.status === "DELIVERED")
         .reduce((sum, order) => {
           const sellerQuantity = order.quantity || 0;
           return sum + sellerQuantity;
         }, 0);
-      const activeListings = products.filter((product) => product.isActive).length;
+      const activeListings = productsArray.filter((product) => product.isActive).length;
 
       setMetrics({ totalOrders, totalRevenue, productsSold, activeListings });
     } catch (err) {
@@ -111,58 +112,8 @@ const SellerDashboard = () => {
     }
   };
 
-  const handleConfirmOrderItem = async (orderId, itemId) => {
-    setActionLoading((prev) => ({ ...prev, [`${orderId}-${itemId}`]: "confirm" }));
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/${orderId}/confirm`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId }), // Pass itemId for product-specific confirm
-      });
-      if (res.ok) {
-        await fetchDashboardData();
-        alert("Order item confirmed successfully!");
-      } else {
-        const errorData = await res.json();
-        alert(errorData.message || "Failed to confirm order item");
-      }
-    } catch (err) {
-      console.error("Error confirming order item:", err);
-      alert("An error occurred while confirming the order item.");
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [`${orderId}-${itemId}`]: null }));
-    }
-  };
-
-  const handleCancelOrderItem = async (orderId, itemId) => {
-    if (!window.confirm("Are you sure you want to cancel this order item?")) return;
-    setActionLoading((prev) => ({ ...prev, [`${orderId}-${itemId}`]: "cancel" }));
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/${orderId}/cancel`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId }), // Pass itemId for product-specific cancel
-      });
-      if (res.ok) {
-        await fetchDashboardData();
-        alert("Order item cancelled successfully!");
-      } else {
-        const errorData = await res.json();
-        alert(errorData.message || "Failed to cancel order item");
-      }
-    } catch (err) {
-      console.error("Error cancelling order item:", err);
-      alert("An error occurred while cancelling the order item.");
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [`${orderId}-${itemId}`]: null }));
-    }
-  };
-
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
-    setActionLoading((prev) => ({ ...prev, [productId]: "delete" }));
     try {
       let token;
       try {
@@ -190,8 +141,6 @@ const SellerDashboard = () => {
     } catch (err) {
       console.error("Error deleting product:", err);
       alert("An error occurred while deleting the product.");
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [productId]: null }));
     }
   };
 
@@ -299,9 +248,29 @@ const SellerDashboard = () => {
           </div>
         </div>
 
-        {/* Orders Section - Now shows all orders with seller's products */}
+        {/* Orders Section - View only for sellers */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Orders for Your Products</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <ShoppingCart className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-900">Recent Orders</h2>
+                <p className="text-sm text-gray-600">Latest orders for your products</p>
+              </div>
+            </div>
+            {orders.length > 5 && (
+              <Link
+                href="/seller/orders"
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center space-x-1"
+              >
+                <span>View all {orders.length} orders</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
+          
           {orders.length === 0 ? (
             <p className="text-gray-600">No orders for your products yet.</p>
           ) : (
@@ -312,70 +281,55 @@ const SellerDashboard = () => {
                     <th className="p-3">Order #</th>
                     <th className="p-3">Date</th>
                     <th className="p-3">Buyer</th>
-                    <th className="p-3">Your Products in Order</th>
-                    <th className="p-3">Order Total</th>
+                    <th className="p-3">Product Details</th>
+                    <th className="p-3">Total</th>
                     <th className="p-3">Status</th>
-                    <th className="p-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orders && orders.length > 0 ? (
-                    orders.map((order) => (
-                      <tr key={order.id} className="border-t">
-                        <td className="p-3">{order.orderNumber}</td>
-                        <td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
-                        <td className="p-3">{order.buyerFirstName || order.buyerEmail || "N/A"}</td>
-                        <td className="p-3">
-                          <div className="flex flex-col space-y-1">
-                            <span className="font-medium">Product: {order.skuCode}</span>
-                            <span className="text-sm text-gray-600">Quantity: {order.quantity}</span>
-                            <span className="text-sm text-gray-600">Price: MWK {order.price}</span>
-                            <span className="text-xs text-gray-500">Total: MWK {(order.price * order.quantity).toFixed(2)}</span>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            order.status === "DELIVERED" ? "bg-green-100 text-green-800" :
-                            order.status === "PENDING" ? "bg-yellow-100 text-yellow-800" :
-                            order.status === "CANCELLED" ? "bg-red-100 text-red-800" :
-                            "bg-gray-100 text-gray-800"
-                          }`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="p-3">
-                          <div className="flex space-x-2">
-                            {order.status === "PENDING" && (
-                              <button
-                                onClick={() => handleConfirmOrderItem(order.id, null)}
-                                disabled={actionLoading[`confirm-${order.id}`]}
-                                className="flex items-center space-x-1 px-2 py-1 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 disabled:opacity-50 transition"
-                              >
-                                <Check className="w-3 h-3" />
-                                <span>Confirm</span>
-                              </button>
-                            )}
-                            {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
-                              <button
-                                onClick={() => handleCancelOrderItem(order.id, null)}
-                                disabled={actionLoading[`cancel-${order.id}`]}
-                                className="flex items-center space-x-1 px-2 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 disabled:opacity-50 transition"
-                              >
-                                <X className="w-3 h-3" />
-                                <span>Cancel</span>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={7} className="p-4 text-center text-gray-600">No orders for your products yet.</td>
+                  {orders.slice(0, 5).map((order) => (
+                    <tr key={order.id} className="border-t hover:bg-gray-50 transition-colors">
+                      <td className="p-3 font-medium">{order.orderNumber}</td>
+                      <td className="p-3 text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
+                      <td className="p-3">
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900">{order.buyerFirstName || "N/A"}</div>
+                          <div className="text-xs text-gray-500">{order.buyerEmail}</div>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900">{order.skuCode}</div>
+                          <div className="text-xs text-gray-500">Qty: {order.quantity}</div>
+                        </div>
+                      </td>
+                      <td className="p-3 font-semibold text-gray-900">MWK {(order.price * order.quantity).toFixed(2)}</td>
+                      <td className="p-3">
+                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
+                          order.status === "DELIVERED" ? "bg-green-100 text-green-800 border border-green-300" :
+                          order.status === "PENDING" ? "bg-yellow-100 text-yellow-800 border border-yellow-300" :
+                          order.status === "CANCELLED" ? "bg-red-100 text-red-800 border border-red-300" :
+                          "bg-gray-100 text-gray-800 border border-gray-300"
+                        }`}>
+                          {order.status}
+                        </span>
+                      </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </table>
+            </div>
+          )}
+          
+          {orders.length > 5 && (
+            <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+              <Link
+                href="/seller/orders"
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center space-x-1"
+              >
+                <span>View all {orders.length} orders</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
           )}
         </div>
@@ -489,20 +443,32 @@ const SellerDashboard = () => {
 
         {/* Products Section */}
         <div className="bg-white rounded-2xl shadow-md p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-gray-900">Your Products</h2>
-            <div className="flex space-x-3">
-              <Link
-                href="/seller/categories"
-                className="px-4 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition"
-              >
-                Manage Categories
-              </Link>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <Package className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-900">Your Products</h2>
+                <p className="text-sm text-gray-600">{products.length} product{products.length !== 1 ? 's' : ''} listed</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              {products.length > 5 && (
+                <Link
+                  href="/seller/products"
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center space-x-1"
+                >
+                  <span>View all</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
               <Link
                 href="/seller/add-product"
-                className="px-4 py-2 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition"
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-5 py-2.5 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-md inline-flex items-center space-x-2"
               >
-                Add New Product
+                <PlusCircle className="w-4 h-4" />
+                <span>Add Product</span>
               </Link>
             </div>
           </div>
@@ -521,22 +487,22 @@ const SellerDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id} className="border-t">
+                  {products.slice(0, 5).map((product) => (
+                    <tr key={product.id} className="border-t hover:bg-gray-50 transition-colors">
                       <td className="p-3 flex items-center space-x-3">
                         <img
                           src={product.imageUrl || "https://via.placeholder.com/50x50.png?text=Product"}
                           alt={product.name}
                           className="w-12 h-12 object-cover rounded"
                         />
-                        <span>{product.name}</span>
+                        <span className="font-medium text-gray-900">{product.name}</span>
                       </td>
-                      <td className="p-3">MWK {product.price}</td>
-                      <td className="p-3">{product.stock}</td>
+                      <td className="p-3 font-semibold text-gray-900">MWK {product.price}</td>
+                      <td className="p-3 text-sm text-gray-600">{product.stock} units</td>
                       <td className="p-3">
                         <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            product.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                          className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${
+                            product.isActive ? "bg-green-100 text-green-800 border border-green-300" : "bg-gray-100 text-gray-800 border border-gray-300"
                           }`}
                         >
                           {product.isActive ? "Active" : "Inactive"}
@@ -545,33 +511,35 @@ const SellerDashboard = () => {
                       <td className="p-3 flex space-x-2">
                         <Link
                           href={`/seller/edit-product/${product.id}`}
-                          className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium hover:bg-blue-700 transition"
+                          className="flex items-center space-x-1 px-3 py-1 bg-green-600 text-white rounded-full text-sm font-medium hover:bg-green-700 transition"
                         >
                           <Edit className="w-4 h-4" />
                           <span>Edit</span>
                         </Link>
                         <button
                           onClick={() => handleDeleteProduct(product.id)}
-                          disabled={actionLoading[product.id] === "delete"}
-                          className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition"
+                          className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition"
                         >
-                          {actionLoading[product.id] === "delete" ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                              <span>Deleting...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Trash2 className="w-4 h-4" />
-                              <span>Delete</span>
-                            </>
-                          )}
+                          <Trash2 className="w-4 h-4" />
+                          <span>Delete</span>
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+          
+          {products.length > 5 && (
+            <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+              <Link
+                href="/seller/products"
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center space-x-1"
+              >
+                <span>View all {products.length} products</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
           )}
         </div>
