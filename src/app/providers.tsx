@@ -10,6 +10,7 @@ interface User {
   role: string;
   email: string;
   phone_number?: string;
+  roles?: string[];
 }
 
 interface AuthContextType {
@@ -36,13 +37,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const token = await getAuthToken();
       const payload = JSON.parse(atob(token.split('.')[1]));
+      const roles: string[] = payload.realm_access?.roles || [];
+
+      let primaryRole = 'BUYER';
+      if (roles.includes('ADMIN')) {
+        primaryRole = 'ADMIN';
+      } else if (roles.includes('SELLER')) {
+        primaryRole = 'SELLER';
+      }
 
       const userData = {
         user_id: payload.sub,
         first_name: payload.given_name || payload.name || payload.preferred_username,
-        role: payload.realm_access?.roles?.includes('SELLER') ? 'SELLER' : 'BUYER',
+        role: primaryRole,
         email: payload.email,
         phone_number: payload.phone_number || undefined,
+        roles,
       };
 
       setUser(userData);

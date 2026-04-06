@@ -27,6 +27,11 @@ const SellerDashboard = () => {
   const getEffectivePrice = (product) => Number(product.discountedPrice ?? product.price ?? 0);
 
   useEffect(() => {
+    if (user?.role === "ADMIN") {
+      router.push("/admin/dashboard");
+      return;
+    }
+
     if (user && user.role === "SELLER") {
       fetchDashboardData();
     } else {

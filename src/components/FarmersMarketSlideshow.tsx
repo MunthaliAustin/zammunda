@@ -1,238 +1,126 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Pause, Play, ArrowRight, ShieldCheck, Truck, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const FarmersMarketSlideshow = () => {
+  const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   const slides = [
     {
-      id: 1,
-      background: "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600",
-      title: "Fresh from Farm to Table",
-      subtitle: "Connect directly with local farmers and get the freshest produce delivered to your doorstep.",
-      buttonText: "Start Shopping Fresh",
-      buttonColor: "bg-white text-green-600 hover:bg-green-50",
-      items: [
-        {
-          image: "🥕",
-          name: "Fresh Carrots",
-          category: "Vegetables"
-        },
-        {
-          image: "🍎",
-          name: "Organic Apples", 
-          category: "Fruits"
-        },
-        {
-          image: "🥬",
-          name: "Leafy Greens",
-          category: "Vegetables"
-        }
-      ]
+      eyebrow: 'Fresh produce, better trust',
+      title: 'A cleaner marketplace for farm buying and selling',
+      subtitle: 'Browse verified products, transparent pricing, and a more reliable ordering experience built for buyers and farmers in Malawi.',
+      primary: 'Browse Products',
+      secondary: 'Become a Seller',
+      tone: 'from-[#1d6f5c] via-[#2a8a72] to-[#d7a86e]',
+      stats: [
+        { label: 'Verified sellers', value: 'Admin-approved onboarding', icon: ShieldCheck },
+        { label: 'Shipping pricing', value: 'Clear city-based rates', icon: Truck },
+        { label: 'Checkout flow', value: 'Professional hosted payments', icon: Sparkles },
+      ],
     },
     {
-      id: 2,
-      background: "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600",
-      title: "Support Local Farmers",
-      subtitle: "Every purchase helps sustain local agriculture and brings fresh, seasonal produce to your community.",
-      buttonText: "Meet Our Farmers",
-      buttonColor: "bg-white text-amber-700 hover:bg-amber-50",
-      items: [
-        {
-          image: "🌽",
-          name: "Sweet Corn",
-          category: "Grains"
-        },
-        {
-          image: "🍅",
-          name: "Heirloom Tomatoes",
-          category: "Vegetables"
-        },
-        {
-          image: "🥒",
-          name: "Garden Cucumbers",
-          category: "Vegetables"
-        }
-      ]
+      eyebrow: 'Seasonal marketplace',
+      title: 'Discover produce worth buying at first glance',
+      subtitle: 'From leafy greens to grains and fresh fruits, the catalog is designed to feel easier to scan, compare, and trust.',
+      primary: 'Shop Fresh Produce',
+      secondary: 'View Categories',
+      tone: 'from-[#15382f] via-[#1b5648] to-[#6ea86f]',
+      stats: [
+        { label: 'Better discovery', value: 'Smarter filtering and browse views', icon: Sparkles },
+        { label: 'Inventory visibility', value: 'Real stock tied to seller listings', icon: ShieldCheck },
+        { label: 'Local movement', value: 'Faster sourcing across key cities', icon: Truck },
+      ],
     },
     {
-      id: 3,
-      background: "bg-gradient-to-br from-purple-400 via-violet-500 to-indigo-500",
-      title: "Organic & Sustainable",
-      subtitle: "Discover pesticide-free, sustainably grown produce that's good for you and the environment.",
-      buttonText: "Shop Organic",
-      buttonColor: "bg-white text-purple-600 hover:bg-purple-50",
-      items: [
-        {
-          image: "🥦",
-          name: "Organic Broccoli",
-          category: "Vegetables"
-        },
-        {
-          image: "🫐",
-          name: "Wild Blueberries",
-          category: "Berries"
-        },
-        {
-          image: "🌶️",
-          name: "Hot Peppers",
-          category: "Spices"
-        }
-      ]
+      eyebrow: 'Built for confidence',
+      title: 'Professional buying tools with a human marketplace feel',
+      subtitle: 'A steadier visual system, more consistent workflows, and admin controls that help maintain quality across the platform.',
+      primary: 'Open Marketplace',
+      secondary: 'Learn More',
+      tone: 'from-[#223349] via-[#34526d] to-[#d9b179]',
+      stats: [
+        { label: 'Admin controls', value: 'Review sellers and moderate listings', icon: ShieldCheck },
+        { label: 'Order flow', value: 'Payments and statuses stay aligned', icon: Sparkles },
+        { label: 'Marketplace UX', value: 'Cleaner, calmer, more premium', icon: Truck },
+      ],
     },
-    {
-      id: 4,
-      background: "bg-gradient-to-br from-purple-400 via-violet-500 to-indigo-500",
-      title: "Seasonal Harvest",
-      subtitle: "Enjoy the best flavors of each season with our rotating selection of peak-freshness produce.",
-      buttonText: "Explore Seasonal",
-      buttonColor: "bg-white text-red-600 hover:bg-red-50",
-      items: [
-        {
-          image: "🍓",
-          name: "Strawberries",
-          category: "Berries"
-        },
-        {
-          image: "🥕",
-          name: "Baby Carrots",
-          category: "Vegetables"
-        },
-        {
-          image: "🌿",
-          name: "Fresh Herbs",
-          category: "Herbs"
-        }
-      ]
-    }
   ];
 
-  // Auto-advance slides
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    
+    const interval = setInterval(() => setCurrentSlide((prev) => (prev + 1) % slides.length), 6000);
     return () => clearInterval(interval);
   }, [isAutoPlaying, slides.length]);
 
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
-
-  const goToPrevious = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  const goToNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying);
-  };
-
-  const currentSlideData = slides[currentSlide];
+  const slide = slides[currentSlide];
 
   return (
-    <div className="relative w-full h-96 overflow-hidden">
-      {/* Main Slide Content */}
-      <div className={`w-full h-full transition-all duration-1000 ${currentSlideData.background}`}>
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-          {/* Left Content */}
-          <div className="flex-1 text-white max-w-xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              {currentSlideData.title}
-            </h1>
-            <p className="text-lg md:text-xl mb-8 opacity-90 leading-relaxed">
-              {currentSlideData.subtitle}
-            </p>
-            <button className={`px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl ${currentSlideData.buttonColor}`}>
-              {currentSlideData.buttonText}
-            </button>
+    <section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 pt-6">
+      <div className={`max-w-7xl mx-auto rounded-[2rem] text-white shadow-[0_30px_90px_rgba(15,23,42,0.18)] bg-gradient-to-br ${slide.tone}`}>
+        <div className="relative overflow-hidden rounded-[2rem] px-6 sm:px-10 lg:px-14 py-14 lg:py-18">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.14),transparent_28%)]" />
+          <div className="relative grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 items-center">
+            <div className="max-w-2xl">
+              <p className="text-sm uppercase tracking-[0.28em] text-white/75 mb-5">{slide.eyebrow}</p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05] mb-5">{slide.title}</h1>
+              <p className="text-lg md:text-xl text-white/82 leading-8 mb-8 max-w-xl">{slide.subtitle}</p>
+              <div className="flex flex-wrap gap-3">
+                <button onClick={() => router.push('/products')} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition-colors">
+                  {slide.primary}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button onClick={() => router.push('/seller/apply')} className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/16 transition-colors">
+                  {slide.secondary}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              {slide.stats.map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <div key={index} className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="h-11 w-11 rounded-2xl bg-white/14 flex items-center justify-center">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <p className="text-sm uppercase tracking-[0.2em] text-white/70">{item.label}</p>
+                    </div>
+                    <p className="text-xl font-semibold tracking-tight">{item.value}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Right Content - Product Showcase */}
-          <div className="flex-1 flex justify-end items-center">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {currentSlideData.items.map((item, index) => (
-                <div 
+          <div className="relative mt-10 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              {slides.map((_, index) => (
+                <button
                   key={index}
-                  className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center transform transition-all duration-500 hover:scale-110 hover:bg-white/30"
-                  style={{ animationDelay: `${index * 200}ms` }}
-                >
-                  <div className="text-6xl mb-4 animate-bounce" style={{ animationDelay: `${index * 300}ms` }}>
-                    {item.image}
-                  </div>
-                  <h3 className="text-white font-semibold text-lg mb-2">
-                    {item.name}
-                  </h3>
-                  <p className="text-white/80 text-sm uppercase tracking-wide">
-                    {item.category}
-                  </p>
-                </div>
+                  onClick={() => setCurrentSlide(index)}
+                  className={`h-2.5 rounded-full transition-all ${index === currentSlide ? 'w-9 bg-white' : 'w-2.5 bg-white/45 hover:bg-white/70'}`}
+                />
               ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)} className="h-11 w-11 rounded-full border border-white/20 bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)} className="h-11 w-11 rounded-full border border-white/20 bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <button onClick={() => setIsAutoPlaying((value) => !value)} className="h-11 w-11 rounded-full border border-white/20 bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Navigation Arrows */}
-      <button
-        onClick={goToPrevious}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 hover:scale-110"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-      
-      <button
-        onClick={goToNext}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 hover:scale-110"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
-
-      {/* Bottom Controls */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
-        {/* Slide Indicators */}
-        <div className="flex space-x-2">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide
-                  ? 'bg-white scale-125'
-                  : 'bg-white/50 hover:bg-white/75'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Play/Pause Button */}
-        <button
-          onClick={toggleAutoPlay}
-          className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-2 rounded-full transition-all duration-300 hover:scale-110"
-        >
-          {isAutoPlaying ? (
-            <Pause className="w-4 h-4" />
-          ) : (
-            <Play className="w-4 h-4" />
-          )}
-        </button>
-      </div>
-
-      {/* Decorative Elements */}
-      <div className="absolute top-10 left-10 text-white/20 text-8xl animate-pulse">
-        🌱
-      </div>
-      <div className="absolute bottom-10 right-10 text-white/20 text-6xl animate-bounce">
-        🚚
-      </div>
-    </div>
+    </section>
   );
 };
 

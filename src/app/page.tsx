@@ -98,27 +98,27 @@ export default function HomePage() {
   }, [selectedCategory, priceRange, sortBy, searchQuery]);
 
   return (
-    <div className="flex flex-col bg-gradient-to-b from-white to-gray-50">
+    <div className="flex flex-col">
       <FarmersMarketSlideshow />
 
-      <section className="py-16 bg-white">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 rounded-2xl hover:bg-green-50 transition-colors duration-300">
+            <div className="section-card text-center p-7 rounded-[1.75rem] hover:-translate-y-1 transition-all duration-300">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Leaf className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Fresh & Organic</h3>
               <p className="text-gray-600">Directly sourced from certified organic farms</p>
             </div>
-            <div className="text-center p-6 rounded-2xl hover:bg-blue-50 transition-colors duration-300">
+            <div className="section-card text-center p-7 rounded-[1.75rem] hover:-translate-y-1 transition-all duration-300">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Award className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Quality Guaranteed</h3>
               <p className="text-gray-600">Rigorous quality checks for every product</p>
             </div>
-            <div className="text-center p-6 rounded-2xl hover:bg-orange-50 transition-colors duration-300">
+            <div className="section-card text-center p-7 rounded-[1.75rem] hover:-translate-y-1 transition-all duration-300">
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ShoppingCart className="w-8 h-8 text-orange-600" />
               </div>
@@ -129,7 +129,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Browse by Category</h2>
@@ -146,7 +146,7 @@ export default function HomePage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(selectedCategory === category.id ? '' : category.id)}
-                  className={`group p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                  className={`group section-card p-4 rounded-[1.35rem] border transition-all duration-300 hover:-translate-y-1 ${
                     selectedCategory === category.id
                       ? 'border-green-600 bg-green-50 shadow-lg'
                       : 'border-gray-200 bg-white hover:border-green-300 hover:shadow-md'
@@ -182,7 +182,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
@@ -249,7 +249,7 @@ export default function HomePage() {
           </div>
 
           {(showFilters || true) && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="section-card rounded-[1.75rem] p-6 mb-8">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
                   <Filter className="w-5 h-5" />
@@ -353,7 +353,7 @@ export default function HomePage() {
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    className="group section-card rounded-[1.5rem] overflow-hidden hover:-translate-y-1 transition-all duration-300"
                   >
                     <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                       <img
