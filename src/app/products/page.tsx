@@ -18,6 +18,7 @@ import {
   TrendingUp,
   X
 } from 'lucide-react';
+import { formatPricePerUnit, formatQuantityWithUnit } from '@/lib/units';
 
 interface ProductWithInventory extends Product {
   inventory?: InventoryItem;
@@ -124,19 +125,21 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f4ea_0%,#fcfbf7_46%,#eef5ee_100%)] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">All Products</h1>
-              <p className="text-lg text-gray-600">
+          <div className="rounded-[2rem] border border-slate-200/80 bg-white/95 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.06)] backdrop-blur sm:p-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Marketplace catalogue</p>
+                <h1 className="mb-2 text-4xl font-bold tracking-tight text-slate-900">All Products</h1>
+                <p className="text-base text-slate-600">
+                  Browse farm produce with clearer pricing, stock visibility, and shipping-ready locations.
+                </p>
+              </div>
+              <div className="rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm">
                 {products.length} product{products.length !== 1 ? 's' : ''} found
-              </p>
-            </div>
-            <div className="section-card px-4 py-2 rounded-full flex items-center space-x-2">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-              <span className="text-sm font-semibold text-gray-700">Fresh Inventory Daily</span>
+              </div>
             </div>
           </div>
         </div>
@@ -148,7 +151,7 @@ export default function ProductsPage() {
           </div>
         )}
 
-        <div className="section-card rounded-[1.75rem] p-6 mb-8">
+        <div className="rounded-[1.9rem] border border-slate-200/80 bg-white/95 p-5 shadow-[0_18px_60px_rgba(15,23,42,0.05)] backdrop-blur sm:p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div className="relative flex-1 max-w-md">
               <input
@@ -156,7 +159,7 @@ export default function ProductsPage() {
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-full border border-slate-300 bg-white py-3 pl-12 pr-4 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
@@ -165,7 +168,7 @@ export default function ProductsPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                className="rounded-full border border-slate-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="featured">Featured</option>
                 <option value="price-low">Price: Low to High</option>
@@ -173,12 +176,12 @@ export default function ProductsPage() {
                 <option value="name">Name: A to Z</option>
               </select>
 
-              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+              <div className="flex overflow-hidden rounded-full border border-slate-300 bg-white">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`px-4 py-3 transition-colors ${
                     viewMode === 'grid'
-                      ? 'bg-green-600 text-white'
+                      ? 'bg-emerald-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -188,7 +191,7 @@ export default function ProductsPage() {
                   onClick={() => setViewMode('list')}
                   className={`px-4 py-3 transition-colors ${
                     viewMode === 'list'
-                      ? 'bg-green-600 text-white'
+                      ? 'bg-emerald-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -198,7 +201,7 @@ export default function ProductsPage() {
 
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="md:hidden px-4 py-3 border border-gray-300 rounded-lg flex items-center space-x-2 hover:bg-gray-50 transition"
+                className="md:hidden rounded-full border border-slate-300 bg-white px-4 py-3 flex items-center space-x-2 hover:bg-gray-50 transition"
               >
                 <Filter className="w-5 h-5" />
                 <span>Filters</span>
@@ -241,7 +244,7 @@ export default function ProductsPage() {
                         value={priceRange[0]}
                         onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
                         placeholder="Min"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                       <span className="text-gray-500 font-medium">-</span>
                       <input
@@ -249,7 +252,7 @@ export default function ProductsPage() {
                         value={priceRange[1]}
                         onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 100000])}
                         placeholder="Max"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
                     <input
@@ -277,7 +280,7 @@ export default function ProductsPage() {
                       onClick={() => setSelectedCategory('')}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         selectedCategory === ''
-                          ? 'bg-green-600 text-white shadow-md'
+                          ? 'bg-emerald-600 text-white shadow-md'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -289,7 +292,7 @@ export default function ProductsPage() {
                         onClick={() => setSelectedCategory(category.id)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                           selectedCategory === category.id
-                            ? 'bg-green-600 text-white shadow-md'
+                            ? 'bg-emerald-600 text-white shadow-md'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -338,7 +341,7 @@ export default function ProductsPage() {
               {products.map((product) => (
                 <div 
                   key={product.id} 
-                  className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
+                  className="group overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-[0_20px_48px_rgba(15,23,42,0.10)]"
                 >
                   <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                     <img
@@ -348,7 +351,7 @@ export default function ProductsPage() {
                     />
                     {product.inventory && product.inventory.quantity > 0 && (
                       <div className="absolute top-2 right-2">
-                        <span className="bg-green-500 text-white px-2.5 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        <span className="bg-emerald-500 text-white px-2.5 py-1 rounded-full text-xs font-semibold shadow-lg">
                           In Stock
                         </span>
                       </div>
@@ -356,22 +359,31 @@ export default function ProductsPage() {
                   </div>
 
                   <div className="p-4">
-                    <div className="mb-2">
-                      <span className="inline-block px-2.5 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <span className="inline-block rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                         {product.skuCode}
                       </span>
+                      {(product.discountPercentage ?? 0) > 0 && (
+                        <span className="rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md">
+                          {Number(product.discountPercentage).toFixed(0)}% OFF
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-1">{product.name}</h3>
                     <p className="text-gray-600 mb-3 line-clamp-2 text-sm">{product.description}</p>
+                    <div className="mb-3 flex items-center text-xs text-slate-500">
+                      <TrendingUp className="mr-1 h-3.5 w-3.5 text-emerald-600" />
+                      <span>{formatPricePerUnit(getEffectivePrice(product), product.unitType, product.unitLabel)}</span>
+                    </div>
 
                     {product.inventory ? (
                       <div className="mb-3">
                         <div className="flex justify-between text-xs text-gray-600 mb-1">
-                          <span>Available: {product.inventory.quantity}</span>
+                          <span>Available: {formatQuantityWithUnit(product.inventory.quantity, product.inventory.unitType ?? product.unitType, product.inventory.unitLabel ?? product.unitLabel)}</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                           <div 
-                            className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" 
+                            className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full" 
                             style={{ width: `${Math.min(100, (product.inventory.quantity / 50) * 100)}%` }}
                           ></div>
                         </div>
@@ -382,14 +394,15 @@ export default function ProductsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col items-start">
-                        <span className="text-xl font-bold text-green-600">MWK {getEffectivePrice(product).toFixed(2)}</span>
+                        <span className="text-xl font-bold text-emerald-700">MWK {getEffectivePrice(product).toFixed(2)}</span>
+                        <span className="text-xs text-gray-500">{product.unitLabel || 'unit'}</span>
                         {(product.discountPercentage ?? 0) > 0 && (
                           <span className="text-xs text-gray-500 line-through">MWK {product.price.toFixed(2)}</span>
                         )}
                       </div>
                       <button 
                         onClick={() => router.push(`/products/${product.id}`)}
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105 flex items-center space-x-1 shadow-md"
+                        className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 flex items-center space-x-1 shadow-md"
                       >
                         <span>View</span>
                         <ChevronRight className="w-4 h-4" />
@@ -404,7 +417,7 @@ export default function ProductsPage() {
               {products.map((product) => (
                 <div 
                   key={product.id} 
-                  className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300"
+                  className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.05)] transition-all duration-300 hover:shadow-[0_18px_42px_rgba(15,23,42,0.08)]"
                 >
                   <div className="flex flex-col md:flex-row">
                     <div className="md:w-56 h-48 md:h-auto relative bg-gradient-to-br from-gray-100 to-gray-200">
@@ -424,17 +437,26 @@ export default function ProductsPage() {
                     <div className="flex-1 p-5 md:p-6">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <div className="mb-2">
-                            <span className="inline-block px-2.5 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
+                          <div className="mb-2 flex items-center gap-2">
+                            <span className="inline-block rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                               {product.skuCode}
                             </span>
+                            {(product.discountPercentage ?? 0) > 0 && (
+                              <span className="rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                                {Number(product.discountPercentage).toFixed(0)}% OFF
+                              </span>
+                            )}
                           </div>
                           <h3 className="text-lg font-bold text-gray-900 mb-2">{product.name}</h3>
                           <p className="text-sm text-gray-600 mb-3">{product.description}</p>
+                          <div className="mb-3 flex items-center text-xs text-slate-500">
+                            <TrendingUp className="mr-1 h-3.5 w-3.5 text-emerald-600" />
+                            <span>{formatPricePerUnit(getEffectivePrice(product), product.unitType, product.unitLabel)}</span>
+                          </div>
                           {product.inventory ? (
                             <div className="flex items-center space-x-2 text-sm">
                               <Package className="w-4 h-4 text-green-600" />
-                              <span className="text-gray-700 font-medium">Available: {product.inventory.quantity} units</span>
+                              <span className="text-gray-700 font-medium">Available: {formatQuantityWithUnit(product.inventory.quantity, product.inventory.unitType ?? product.unitType, product.inventory.unitLabel ?? product.unitLabel)}</span>
                             </div>
                           ) : (
                             <div className="text-red-600 text-sm font-semibold">Currently Out of Stock</div>
@@ -442,14 +464,15 @@ export default function ProductsPage() {
                         </div>
                         <div className="text-right">
                           <div className="mb-3">
-                            <span className="text-2xl font-bold text-green-600 block">MWK {getEffectivePrice(product).toFixed(2)}</span>
+                            <span className="text-2xl font-bold text-emerald-700 block">MWK {getEffectivePrice(product).toFixed(2)}</span>
+                            <span className="text-xs text-gray-500">{formatPricePerUnit(getEffectivePrice(product), product.unitType, product.unitLabel)}</span>
                             {(product.discountPercentage ?? 0) > 0 && (
                               <span className="text-xs text-gray-500 line-through">MWK {product.price.toFixed(2)}</span>
                             )}
                           </div>
                           <button 
                             onClick={() => router.push(`/products/${product.id}`)}
-                            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-md inline-flex items-center space-x-2"
+                            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-md inline-flex items-center space-x-2"
                           >
                             <span>View Details</span>
                             <ChevronRight className="w-4 h-4" />

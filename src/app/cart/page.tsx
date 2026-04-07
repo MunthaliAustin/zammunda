@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
 import { useAuth, useCart } from "../providers";
+import { formatPricePerUnit, formatQuantityWithUnit } from "@/lib/units";
 
 const CartPage = () => {
   const router = useRouter();
@@ -59,7 +60,8 @@ const CartPage = () => {
                   />
                   <div className="flex-1">
                     <h2 className="text-xl font-semibold">{item.product.name}</h2>
-                    <p className="text-green-600 font-medium">MWK {item.price} each</p>
+                    <p className="text-green-600 font-medium">{formatPricePerUnit(item.price, item.product.unitType, item.product.unitLabel)}</p>
+                    <p className="text-xs text-gray-500">{formatQuantityWithUnit(item.quantity, item.product.unitType, item.product.unitLabel)}</p>
                     <p className="text-gray-600">Subtotal: MWK {item.price * item.quantity}</p>
                   </div>
                   <div className="flex items-center space-x-2">

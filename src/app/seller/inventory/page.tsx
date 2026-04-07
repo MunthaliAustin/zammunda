@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/providers';
 import { inventoryService, InventoryItem } from '@/lib/inventory-service';
+import { formatQuantityWithUnit } from '@/lib/units';
 import Link from 'next/link';
 
 export default function SellerInventoryPage() {
@@ -12,6 +13,7 @@ export default function SellerInventoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQuantity, setEditQuantity] = useState<number>(0);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -33,11 +35,12 @@ export default function SellerInventoryPage() {
 
   const handleUpdateQuantity = async (skuCode: string) => {
     try {
-      await inventoryService.adjustInventory(skuCode, editQuantity);
+      await inventoryService.adjustInventory(skuCode, editQuantity, editingItem?.unitType, editingItem?.unitLabel);
       // Refresh inventory
       await fetchInventory();
       setEditingId(null);
       setEditQuantity(0);
+      setEditingItem(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update inventory');
     }
@@ -115,7 +118,7 @@ export default function SellerInventoryPage() {
               <tr>
                 <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                 <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU Code</th>
-                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Quantity</th>
+                <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selling Unit</th>
                 <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
                 <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reserved</th>
                 <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -128,10 +131,10 @@ export default function SellerInventoryPage() {
                     <div className="text-sm font-medium text-gray-900">{item.skuCode}</div>
                   </td>
                   <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{item.skuCode}</td>
-                  <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{item.quantity}</td>
+                  <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{item.unitLabel || 'unit'}</td>
                   <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {item.quantity}
+                      {formatQuantityWithUnit(item.quantity, item.unitType, item.unitLabel)}
                     </span>
                   </td>
                   <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">
@@ -156,7 +159,10 @@ export default function SellerInventoryPage() {
                           Save
                         </button>
                         <button
-                          onClick={() => setEditingId(null)}
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditingItem(null);
+                          }}
                           className="text-gray-600 hover:text-gray-900"
                         >
                           Cancel
@@ -168,6 +174,7 @@ export default function SellerInventoryPage() {
                           onClick={() => {
                             setEditingId(item.skuCode);
                             setEditQuantity(item.quantity);
+                            setEditingItem(item);
                           }}
                           className="text-blue-600 hover:text-blue-900 mr-3"
                         >

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ChevronDown,
@@ -17,23 +17,49 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth, useCart } from "@/app/providers";
 
-const HoverDropdownMenu = ({ children }) => {
+const ClickDropdownMenu = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div
+      ref={containerRef}
       className="relative"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
     >
-      {React.Children.map(children, (child) => React.cloneElement(child, { isOpen }))}
+      {React.Children.map(children, (child) =>
+        React.cloneElement(child, {
+          isOpen,
+          setIsOpen,
+        })
+      )}
     </div>
   );
 };
 
-const HoverDropdownTrigger = ({ children, className }) => <div className={className}>{children}</div>;
+const ClickDropdownTrigger = ({ children, className, isOpen, setIsOpen }) => (
+  <button
+    type="button"
+    className={className}
+    aria-expanded={isOpen}
+    onClick={() => setIsOpen(!isOpen)}
+  >
+    {children}
+  </button>
+);
 
-const HoverDropdownContent = ({ children, align, className, isOpen }) => (
+const ClickDropdownContent = ({ children, align, className, isOpen }) => (
   <>
     {isOpen && (
       <div
@@ -51,10 +77,17 @@ const HoverDropdownContent = ({ children, align, className, isOpen }) => (
   </>
 );
 
-const HoverDropdownMenuItem = ({ children, className, onClick }) => (
-  <div className={`px-4 py-2.5 cursor-pointer ${className}`} onClick={onClick}>
+const ClickDropdownMenuItem = ({ children, className, onClick, setIsOpen }) => (
+  <button
+    type="button"
+    className={`w-full px-4 py-2.5 text-left cursor-pointer ${className}`}
+    onClick={() => {
+      onClick?.();
+      setIsOpen?.(false);
+    }}
+  >
     {children}
-  </div>
+  </button>
 );
 
 const UserAvatar = ({ user }) => {
@@ -146,57 +179,57 @@ export default function Header() {
               </button>
 
               {user ? (
-                <HoverDropdownMenu>
-                  <HoverDropdownTrigger className="hidden lg:flex items-center gap-2 cursor-pointer p-1.5 rounded-full hover:bg-white/60 transition-colors">
+                <ClickDropdownMenu>
+                  <ClickDropdownTrigger className="hidden lg:flex items-center gap-2 cursor-pointer p-1.5 rounded-full hover:bg-white/60 transition-colors">
                     <UserAvatar user={user} />
                     <div className="text-left">
                       <p className="text-sm font-semibold text-slate-900 leading-none">{user.first_name}</p>
                       <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500 mt-1">{user.role}</p>
                     </div>
                     <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                  </HoverDropdownTrigger>
-                  <HoverDropdownContent align="end" className="w-60 overflow-hidden">
+                  </ClickDropdownTrigger>
+                  <ClickDropdownContent align="end" className="w-60 overflow-hidden">
                     <div className="px-4 py-4 border-b border-slate-200/70 bg-white/40">
                       <p className="text-sm font-semibold text-slate-900 truncate">{user.first_name}</p>
                       <p className="text-xs text-slate-500 truncate mt-1">{user.email}</p>
                     </div>
                     <div className="py-2">
                       {user.role !== "BUYER" && (
-                        <HoverDropdownMenuItem
+                        <ClickDropdownMenuItem
                           className="flex items-center gap-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-[var(--brand)] transition-colors"
                           onClick={() => router.push(dashboardHref)}
                         >
                           {user.role === 'ADMIN' ? <Shield className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
                           <span>{user.role === 'ADMIN' ? 'Admin Dashboard' : 'Dashboard'}</span>
-                        </HoverDropdownMenuItem>
+                        </ClickDropdownMenuItem>
                       )}
                       {user.role === "BUYER" && (
-                        <HoverDropdownMenuItem
+                        <ClickDropdownMenuItem
                           className="flex items-center gap-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-[var(--brand)] transition-colors"
                           onClick={() => router.push("/seller/apply")}
                         >
                           <FileBadge2 className="w-4 h-4" />
                           <span>Become a Seller</span>
-                        </HoverDropdownMenuItem>
+                        </ClickDropdownMenuItem>
                       )}
-                      <HoverDropdownMenuItem
+                      <ClickDropdownMenuItem
                         className="flex items-center gap-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-[var(--brand)] transition-colors"
                         onClick={() => router.push("/profile")}
                       >
                         <User className="w-4 h-4" />
                         <span>Profile</span>
-                      </HoverDropdownMenuItem>
+                      </ClickDropdownMenuItem>
                       <div className="border-t border-slate-200/70 my-2"></div>
-                      <HoverDropdownMenuItem
+                      <ClickDropdownMenuItem
                         className="flex items-center gap-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         onClick={handleLogout}
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Sign Out</span>
-                      </HoverDropdownMenuItem>
+                      </ClickDropdownMenuItem>
                     </div>
-                  </HoverDropdownContent>
-                </HoverDropdownMenu>
+                  </ClickDropdownContent>
+                </ClickDropdownMenu>
               ) : (
                 <div className="hidden lg:flex items-center gap-3">
                   <Link href={signInHref} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">

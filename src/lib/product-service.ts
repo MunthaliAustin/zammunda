@@ -1,4 +1,5 @@
 import { getAuthToken } from './auth-service';
+import { SellingUnitType, getDefaultUnitLabel } from './units';
 
 export interface Product {
   id?: string;
@@ -14,6 +15,8 @@ export interface Product {
   sellerName?: string;
   categoryId?: string;
   city?: 'Lilongwe' | 'Blantyre' | 'Mzuzu';
+  unitType?: SellingUnitType;
+  unitLabel?: string;
   imageUrl?: string;
   imageUrls?: string[];
   stock?: number;
@@ -39,6 +42,8 @@ const normalizeProduct = (product: any): Product => ({
     ? parseInt(product.reviewCount, 10)
     : product.reviewCount ?? 0,
   active: product.active ?? true,
+  unitType: product.unitType ?? 'KG',
+  unitLabel: product.unitLabel ?? getDefaultUnitLabel(product.unitType),
 });
 
 const getOptionalAuthHeaders = async (): Promise<HeadersInit> => {
@@ -102,6 +107,8 @@ export const productService = {
     formData.append('skuCode', product.skuCode);
     formData.append('categoryId', product.categoryId || '');
     formData.append('city', product.city || '');
+    formData.append('unitType', product.unitType || 'KG');
+    formData.append('unitLabel', product.unitLabel || getDefaultUnitLabel(product.unitType));
     if (product.imageUrl) {
       formData.append('imageUrl', product.imageUrl);
     }

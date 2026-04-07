@@ -8,6 +8,7 @@ import { categoryService } from "@/lib/category-service";
 import { compressImage, blobToFile } from "@/lib/image-compression";
 import { productService, Product } from "@/lib/product-service";
 import { inventoryService } from "@/lib/inventory-service";
+import { SELLING_UNIT_OPTIONS, SellingUnitType, getDefaultUnitLabel } from "@/lib/units";
 
 const MALAWI_CITIES = ["Lilongwe", "Blantyre", "Mzuzu"] as const;
 
@@ -26,6 +27,8 @@ const EditProductPage = () => {
     active: true,
     categoryId: "",
     city: "Lilongwe" as MalawiCity,
+    unitType: "KG" as SellingUnitType,
+    unitLabel: "kg",
     skuCode: "",
     image: null as File | null,
     images: [] as File[],
@@ -81,6 +84,8 @@ const EditProductPage = () => {
         active: product.active ?? true,
         categoryId: product.categoryId || "",
         city: (product.city as MalawiCity) || "Lilongwe",
+        unitType: (inventory?.unitType as SellingUnitType) || (product.unitType as SellingUnitType) || "KG",
+        unitLabel: inventory?.unitLabel || product.unitLabel || getDefaultUnitLabel(inventory?.unitType || product.unitType),
         skuCode: product.skuCode || "",
         image: null,
         images: [],
@@ -106,6 +111,9 @@ const EditProductPage = () => {
           .toUpperCase()
           .replace(/[^A-Z0-9]/g, "_")
           .substring(0, 20);
+      }
+      if (name === "unitType") {
+        updatedData.unitLabel = getDefaultUnitLabel(value);
       }
       return updatedData;
     });
@@ -149,11 +157,11 @@ const EditProductPage = () => {
     setError("");
     setCompressionProgress("Preparing images...");
 
-    const { name, description, price, stock, categoryId, city, skuCode, discountPercentage, active } = formData;
+    const { name, description, price, stock, categoryId, city, unitType, unitLabel, skuCode, discountPercentage, active } = formData;
     const image = primaryImageFileRef.current;
     const images = additionalImageFilesRef.current;
 
-    if (!name || !description || !price || !stock || !categoryId || !city || !skuCode) {
+    if (!name || !description || !price || !stock || !categoryId || !city || !unitType || !unitLabel || !skuCode) {
       setError("All fields except image are required.");
       setIsLoading(false);
       return;
@@ -170,10 +178,12 @@ const EditProductPage = () => {
         stock: Number(stock),
         categoryId,
         city,
+        unitType,
+        unitLabel,
         skuCode,
       } as Product);
 
-      await inventoryService.updateInventory(skuCode, Number(stock));
+      await inventoryService.updateInventory(skuCode, Number(stock), unitType, unitLabel);
 
       if (image || images.length > 0) {
         let compressedPrimaryImage: File | undefined;
@@ -230,8 +240,12 @@ const EditProductPage = () => {
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center space-x-4 mb-8">
-          <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-gray-200 transition">
-            <ArrowLeft className="w-6 h-6 text-gray-700" />
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center space-x-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-all duration-300 hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back</span>
           </button>
           <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
         </div>
@@ -263,7 +277,7 @@ const EditProductPage = () => {
               <input type="number" name="discountPercentage" value={formData.discountPercentage} onChange={handleInputChange} step="0.01" min="0" max="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="0" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Available Units *</label>
               <input type="number" name="stock" value={formData.stock} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="0" required />
             </div>
             <div>
@@ -274,6 +288,20 @@ const EditProductPage = () => {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Selling Unit *</label>
+              <select name="unitType" value={formData.unitType} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                {SELLING_UNIT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Display Label *</label>
+            <input type="text" name="unitLabel" value={formData.unitLabel} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g. 50kg bag" required />
+            <p className="mt-1 text-xs text-gray-500">Shown to buyers as the selling measure for this listing.</p>
           </div>
 
           <div className="mb-6 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">

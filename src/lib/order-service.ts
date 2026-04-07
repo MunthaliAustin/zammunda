@@ -6,6 +6,8 @@ export interface Order {
   skuCode: string;
   price: number;
   quantity: number;
+  unitType?: string;
+  unitLabel?: string;
   userId: string;
   sellerId: string;
   buyerEmail?: string;

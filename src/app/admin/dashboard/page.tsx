@@ -220,7 +220,7 @@ const AdminDashboardPage = () => {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,#f5f4ed_0%,#fcfbf8_45%,#eef3f8_100%)]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading admin dashboard...</p>
@@ -234,12 +234,13 @@ const AdminDashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 py-8">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f5f4ed_0%,#fcfbf8_45%,#eef3f8_100%)] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="mb-8 flex flex-col gap-4 rounded-[32px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.06)] backdrop-blur md:flex-row md:items-center md:justify-between lg:p-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-            <p className="text-lg text-gray-600">Manage seller applications, users, products, and categories.</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-blue-700/70">Platform operations</p>
+            <h1 className="mb-2 text-4xl font-bold tracking-tight text-slate-900">Admin Dashboard</h1>
+            <p className="text-base text-slate-600">Manage seller applications, users, products, and categories from one consistent control center.</p>
           </div>
           <button
             onClick={() => void fetchAllData()}
@@ -251,28 +252,28 @@ const AdminDashboardPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+          <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
             <div className="flex items-center justify-between mb-3">
               <FileBadge2 className="w-7 h-7 text-amber-600" />
               <span className="text-xs text-gray-500 uppercase tracking-wide">Pending</span>
             </div>
             <p className="text-3xl font-bold text-gray-900">{stats.pendingApplications}</p>
           </div>
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+          <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
             <div className="flex items-center justify-between mb-3">
               <Users className="w-7 h-7 text-blue-600" />
               <span className="text-xs text-gray-500 uppercase tracking-wide">Users</span>
             </div>
             <p className="text-3xl font-bold text-gray-900">{stats.users}</p>
           </div>
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+          <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
             <div className="flex items-center justify-between mb-3">
               <Boxes className="w-7 h-7 text-green-600" />
               <span className="text-xs text-gray-500 uppercase tracking-wide">Active Products</span>
             </div>
             <p className="text-3xl font-bold text-gray-900">{stats.activeProducts}</p>
           </div>
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+          <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
             <div className="flex items-center justify-between mb-3">
               <FolderTree className="w-7 h-7 text-purple-600" />
               <span className="text-xs text-gray-500 uppercase tracking-wide">Categories</span>
@@ -283,7 +284,7 @@ const AdminDashboardPage = () => {
 
         {error && <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>}
 
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 mb-6 p-3 flex flex-wrap gap-3">
+        <div className="mb-6 flex flex-wrap gap-3 rounded-[28px] border border-slate-200/80 bg-white/95 p-3 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const selected = activeTab === tab.id;
@@ -291,7 +292,7 @@ const AdminDashboardPage = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition ${selected ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition ${selected ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
@@ -301,8 +302,8 @@ const AdminDashboardPage = () => {
         </div>
 
         {activeTab === "applications" && (
-          <div className="grid grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)] gap-6">
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-4">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
               <div className="mb-4">
                 <h2 className="text-2xl font-semibold text-gray-900">Seller Applications</h2>
                 <p className="text-sm text-gray-600 mt-1">Select an application from the list to view all details.</p>
@@ -313,7 +314,7 @@ const AdminDashboardPage = () => {
                   No seller applications yet.
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
+                <div className="max-h-[70vh] divide-y divide-slate-100 overflow-y-auto">
                   {applications.map((application) => {
                     const isSelected = selectedApplication?.id === application.id;
                     return (
@@ -321,7 +322,7 @@ const AdminDashboardPage = () => {
                         key={application.id}
                         type="button"
                         onClick={() => setSelectedApplicationId(application.id)}
-                        className={`w-full text-left px-4 py-4 transition ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                        className={`w-full text-left px-4 py-4 transition ${isSelected ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -342,7 +343,7 @@ const AdminDashboardPage = () => {
               )}
             </div>
 
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+            <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
               {!selectedApplication ? (
                 <div className="h-full min-h-[420px] flex items-center justify-center text-gray-500">
                   Select an application to view details.
@@ -382,7 +383,7 @@ const AdminDashboardPage = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="rounded-2xl border border-gray-200 p-4 bg-gray-50">
+                    <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50">
                       <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase mb-2">Applicant Details</p>
                       <div className="space-y-2 text-sm text-gray-700">
                         <p><span className="font-medium text-gray-900">Phone:</span> {selectedApplication.phoneNumber}</p>
@@ -390,7 +391,7 @@ const AdminDashboardPage = () => {
                         <p><span className="font-medium text-gray-900">User ID:</span> {selectedApplication.userId}</p>
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-gray-200 p-4 bg-gray-50">
+                    <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50">
                       <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase mb-2">Review Timeline</p>
                       <div className="space-y-2 text-sm text-gray-700">
                         <p><span className="font-medium text-gray-900">Submitted:</span> {selectedApplication.submittedAt ? new Date(selectedApplication.submittedAt).toLocaleString() : 'N/A'}</p>
@@ -400,7 +401,7 @@ const AdminDashboardPage = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-gray-200 p-4 bg-white">
+                  <div className="rounded-2xl border border-slate-200 p-4 bg-white">
                     <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase mb-3">National ID Document</p>
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div className="text-sm text-gray-700">
@@ -411,7 +412,7 @@ const AdminDashboardPage = () => {
                         href={selectedApplication.nationalIdImageUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center justify-center rounded-full bg-gray-900 px-4 py-2 text-xs font-medium text-white hover:bg-gray-800"
+                        className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-xs font-medium text-white hover:bg-slate-800"
                       >
                         Open Document
                       </a>
@@ -431,7 +432,7 @@ const AdminDashboardPage = () => {
         )}
 
         {activeTab === "users" && (
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+          <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-2xl font-semibold text-gray-900">Users</h2>
@@ -448,9 +449,9 @@ const AdminDashboardPage = () => {
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="text-gray-600 border-b">
+                  <tr className="border-b border-slate-200 text-slate-500">
                     <th className="p-3">User</th>
                     <th className="p-3">Email</th>
                     <th className="p-3">Roles</th>
@@ -460,7 +461,7 @@ const AdminDashboardPage = () => {
                 </thead>
                 <tbody>
                   {users.map((entry) => (
-                    <tr key={entry.id} className="border-b last:border-b-0">
+                    <tr key={entry.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50/80 last:border-b-0">
                       <td className="p-3">
                         <div className="font-medium text-gray-900">{entry.firstName || entry.username || 'Unknown'}</div>
                         <div className="text-xs text-gray-500">{entry.username}</div>
@@ -491,15 +492,15 @@ const AdminDashboardPage = () => {
         )}
 
         {activeTab === "products" && (
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+          <div className="rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
             <div className="mb-6">
               <h2 className="text-2xl font-semibold text-gray-900">Products</h2>
               <p className="text-sm text-gray-600">Moderate listings, disable products, or remove them completely.</p>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="text-gray-600 border-b">
+                  <tr className="border-b border-slate-200 text-slate-500">
                     <th className="p-3">Product</th>
                     <th className="p-3">Seller</th>
                     <th className="p-3">City</th>
@@ -510,7 +511,7 @@ const AdminDashboardPage = () => {
                 </thead>
                 <tbody>
                   {products.map((product) => (
-                    <tr key={product.id} className="border-b last:border-b-0">
+                    <tr key={product.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50/80 last:border-b-0">
                       <td className="p-3">
                         <div className="font-medium text-gray-900">{product.name}</div>
                         <div className="text-xs text-gray-500">{product.skuCode}</div>
@@ -554,8 +555,8 @@ const AdminDashboardPage = () => {
         )}
 
         {activeTab === "categories" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 bg-white rounded-2xl shadow-md border border-gray-100 p-6 h-fit">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-1 rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)] h-fit">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Category Form</h2>
               <div className="space-y-4">
                 <input
@@ -588,11 +589,11 @@ const AdminDashboardPage = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+            <div className="lg:col-span-2 rounded-[28px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
               <h2 className="text-2xl font-semibold text-gray-900 mb-6">Categories</h2>
               <div className="space-y-4">
                 {categories.map((category) => (
-                  <div key={category.id} className="rounded-2xl border border-gray-200 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div key={category.id} className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-4 md:flex-row md:items-center md:justify-between">
                     <div>
                       <div className="font-semibold text-gray-900">{category.name}</div>
                       <div className="text-sm text-gray-600 mt-1">{category.description}</div>

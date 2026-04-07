@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { clearAuthTokens, getAuthToken } from "@/lib/auth-service";
+import { getDefaultUnitLabel } from "@/lib/units";
 
 interface User {
   user_id: string;
@@ -179,6 +180,8 @@ interface CartItem {
     image?: string;
     imageUrl?: string;
     city?: string;
+    unitType?: string;
+    unitLabel?: string;
   };
   quantity: number;
   price: number;
@@ -227,6 +230,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             image: item.product?.image ?? item.product?.imageUrl,
             imageUrl: item.product?.imageUrl,
             city: item.product?.city ?? undefined,
+            unitType: item.product?.unitType ?? "KG",
+            unitLabel: item.product?.unitLabel ?? getDefaultUnitLabel(item.product?.unitType),
           },
           quantity: Number(item.quantity ?? 0),
           price: Number(item.price ?? item.product?.price ?? 0),

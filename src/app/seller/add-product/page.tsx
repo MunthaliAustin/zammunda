@@ -7,6 +7,7 @@ import { ArrowLeft, Upload } from "lucide-react";
 import { categoryService } from "@/lib/category-service";
 import { getAuthToken } from "@/lib/auth-service";
 import { compressImage, blobToFile } from "@/lib/image-compression";
+import { SELLING_UNIT_OPTIONS, SellingUnitType, getDefaultUnitLabel } from "@/lib/units";
 
 const MALAWI_CITIES = ["Lilongwe", "Blantyre", "Mzuzu"] as const;
 
@@ -24,6 +25,8 @@ const AddProductPage = () => {
     active: true,
     categoryId: "",
     city: "Lilongwe" as MalawiCity,
+    unitType: "KG" as SellingUnitType,
+    unitLabel: "kg",
     skuCode: "",
     image: null as File | null,
     images: [] as File[],
@@ -72,6 +75,10 @@ const AddProductPage = () => {
           .substring(0, 20);
       }
 
+      if (name === "unitType") {
+        updatedData.unitLabel = getDefaultUnitLabel(value);
+      }
+
       return updatedData;
     });
   };
@@ -114,11 +121,11 @@ const AddProductPage = () => {
     setError("");
     setCompressionProgress("Preparing images...");
 
-    const { name, description, price, stock, categoryId, city, skuCode } = formData;
+    const { name, description, price, stock, categoryId, city, unitType, unitLabel, skuCode } = formData;
     const image = primaryImageFileRef.current;
     const images = additionalImageFilesRef.current;
 
-    if (!name || !description || !price || !stock || !categoryId || !city || !skuCode) {
+    if (!name || !description || !price || !stock || !categoryId || !city || !unitType || !unitLabel || !skuCode) {
       setError("All fields except image are required.");
       setIsLoading(false);
       return;
@@ -134,6 +141,8 @@ const AddProductPage = () => {
       formDataToSend.append("active", String(formData.active));
       formDataToSend.append("categoryId", categoryId);
       formDataToSend.append("city", city);
+      formDataToSend.append("unitType", unitType);
+      formDataToSend.append("unitLabel", unitLabel);
       formDataToSend.append("skuCode", skuCode);
 
       if (image) {
@@ -228,9 +237,10 @@ const AddProductPage = () => {
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6">
         <button
           onClick={() => router.back()}
-          className="mb-4 flex items-center text-green-700 hover:text-green-900 transition font-semibold"
+          className="mb-4 inline-flex items-center space-x-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-all duration-300 hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md"
         >
-          <ArrowLeft className="w-4 h-4 mr-1.5" /> Back to Dashboard
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back</span>
         </button>
 
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Add New Product</h1>
@@ -277,8 +287,9 @@ const AddProductPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
-            <input type="number" name="stock" value={formData.stock} onChange={handleInputChange} placeholder="Enter stock quantity" className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500" min="0" required />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Available Units</label>
+            <input type="number" name="stock" value={formData.stock} onChange={handleInputChange} placeholder="Enter how many selling units you have" className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500" min="0" required />
+            <p className="text-xs text-gray-500 mt-0.5">For example: `70` if you have 70 bags, or `120` if you sell by kg and have 120kg available.</p>
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
@@ -299,6 +310,22 @@ const AddProductPage = () => {
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-0.5">This city is used to calculate shipping during checkout.</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Selling Unit</label>
+              <select name="unitType" value={formData.unitType} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                {SELLING_UNIT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Display Label</label>
+              <input type="text" name="unitLabel" value={formData.unitLabel} onChange={handleInputChange} placeholder="e.g. 50kg bag" className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500" required />
+              <p className="text-xs text-gray-500 mt-0.5">This is what buyers will see, for example `kg`, `piece`, or `50kg bag`.</p>
+            </div>
           </div>
 
           <div>

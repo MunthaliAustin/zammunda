@@ -6,6 +6,7 @@ import { ArrowLeft, Building, Shield, Truck } from "lucide-react";
 import { useAuth, useCart } from "@/app/providers";
 import { orderService } from "@/lib/order-service";
 import { paymentService } from "@/lib/payment-service";
+import { formatPricePerUnit, formatQuantityWithUnit } from "@/lib/units";
 
 interface ShippingAddress {
   firstName: string;
@@ -293,7 +294,8 @@ const CheckoutPage = () => {
                     <img src={item.product.imageUrl || item.product.image || "https://via.placeholder.com/80x80.png?text=Product"} alt={item.product.name} className="w-16 h-16 object-cover rounded-lg" />
                     <div className="flex-1">
                       <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{item.product.name}</h3>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                      <p className="text-xs text-gray-500">Qty: {formatQuantityWithUnit(item.quantity, item.product.unitType, item.product.unitLabel)}</p>
+                      <p className="text-xs text-gray-500">{formatPricePerUnit(item.price, item.product.unitType, item.product.unitLabel)}</p>
                       <p className="text-sm font-semibold text-green-600">MWK {item.price * item.quantity}</p>
                       <div className="mt-1 flex items-center text-xs text-gray-500">
                         <Truck className="w-3.5 h-3.5 mr-1" />

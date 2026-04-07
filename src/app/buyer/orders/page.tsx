@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useAuth, useCart } from '@/app/providers';
 import { orderService, Order } from '@/lib/order-service';
 import { paymentService, Payment } from '@/lib/payment-service';
+import { formatQuantityWithUnit } from '@/lib/units';
 
 export default function BuyerOrdersPage() {
   const { user, isLoading } = useAuth();
@@ -132,7 +133,7 @@ export default function BuyerOrdersPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 mb-2">
                       <div>Order ID: {order.orderNumber}</div>
-                      <div>Quantity: {order.quantity}</div>
+                      <div>Quantity: {formatQuantityWithUnit(order.quantity, order.unitType, order.unitLabel)}</div>
                       <div>Total: MWK {order.price}</div>
                       <div>Date: {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</div>
                     </div>

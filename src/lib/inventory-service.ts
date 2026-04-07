@@ -1,9 +1,12 @@
 import { getAuthToken } from './auth-service';
+import { SellingUnitType, getDefaultUnitLabel } from './units';
 
 export interface InventoryItem {
   id?: number;
   skuCode: string;
   quantity: number;
+  unitType?: SellingUnitType;
+  unitLabel?: string;
   sellerId: string;
   sellerEmail?: string;
   sellerName?: string;
@@ -12,9 +15,18 @@ export interface InventoryItem {
 export interface InventoryUpdate {
   skuCode: string;
   quantity: number;
+  unitType?: SellingUnitType;
+  unitLabel?: string;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9000';
+
+const normalizeInventory = (item: any): InventoryItem => ({
+  ...item,
+  quantity: typeof item.quantity === 'string' ? parseInt(item.quantity, 10) : item.quantity ?? 0,
+  unitType: item.unitType ?? 'KG',
+  unitLabel: item.unitLabel ?? getDefaultUnitLabel(item.unitType),
+});
 
 const getOptionalAuthHeaders = async (): Promise<HeadersInit> => {
   try {
@@ -42,7 +54,7 @@ export const inventoryService = {
         throw new Error(`Failed to fetch inventory: ${response.status} ${response.statusText}`);
       }
 
-      return response.json();
+      return (await response.json()).map((item: any) => normalizeInventory(item));
     } catch (error) {
       console.error('Error fetching inventory:', error);
       return [];
@@ -60,7 +72,7 @@ export const inventoryService = {
       throw new Error(`Failed to fetch inventory: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    return normalizeInventory(await response.json());
   },
 
   getInventoryBySkuCodeAndSellerId: async (skuCode: string, sellerId: string): Promise<InventoryItem> => {
@@ -74,10 +86,10 @@ export const inventoryService = {
       throw new Error(`Failed to fetch inventory: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    return normalizeInventory(await response.json());
   },
 
-  updateInventory: async (skuCode: string, quantity: number): Promise<InventoryItem> => {
+  updateInventory: async (skuCode: string, quantity: number, unitType?: SellingUnitType, unitLabel?: string): Promise<InventoryItem> => {
     const token = await getAuthToken();
 
     const response = await fetch(`${API_BASE_URL}/api/inventory/seller`, {
@@ -88,7 +100,9 @@ export const inventoryService = {
       },
       body: JSON.stringify({
         skuCode,
-        quantity
+        quantity,
+        unitType,
+        unitLabel
       }),
     });
 
@@ -96,10 +110,10 @@ export const inventoryService = {
       throw new Error(`Failed to update inventory: ${response.status} ${response.statusText}`);
     }
 
-    return { skuCode, quantity, sellerId: "" };
+    return { skuCode, quantity, unitType, unitLabel: unitLabel ?? getDefaultUnitLabel(unitType), sellerId: "" };
   },
 
-  adjustInventory: async (skuCode: string, quantity: number): Promise<InventoryItem> => {
+  adjustInventory: async (skuCode: string, quantity: number, unitType?: SellingUnitType, unitLabel?: string): Promise<InventoryItem> => {
     const token = await getAuthToken();
 
     const response = await fetch(`${API_BASE_URL}/api/inventory/${skuCode}`, {
@@ -108,14 +122,14 @@ export const inventoryService = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ quantity }),
+      body: JSON.stringify({ skuCode, quantity, unitType, unitLabel }),
     });
 
     if (!response.ok) {
       throw new Error(`Failed to adjust inventory: ${response.status} ${response.statusText}`);
     }
 
-    return { skuCode, quantity, sellerId: "" };
+    return { skuCode, quantity, unitType, unitLabel: unitLabel ?? getDefaultUnitLabel(unitType), sellerId: "" };
   },
 
   removeInventory: async (skuCode: string): Promise<void> => {
